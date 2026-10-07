@@ -1,0 +1,352 @@
+/* ============================================================
+   cells.css — what is this lab's own: the header, the left column that each station fills with its own
+   picture, the two pictures built so far, the cards that open one at a time, and the theme button.
+   Every colour is a token from css/app.css, defined in the bright AND the dark version there; the few
+   that sit on a photograph (a line drawn over a real cell) are the same in both versions, because the
+   photograph is the same in both.
+   ============================================================ */
+:root{
+  --on-photo-ink:#0E141B; --on-photo-halo:rgba(255,255,255,.92); --on-photo-veil:rgba(14,20,27,.40); --lev-dim:rgba(14,20,27,.18);
+  --beam-0:rgba(255,236,170,.15); --beam-1:rgba(255,246,214,.95); --fov-ring:#05080B;
+  --ruler-body:rgba(240,248,255,.62); --ruler-edge:rgba(14,20,27,.55); --ruler-ink:#0E141B; --ruler-span:#C026D3;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ruler-span:#E879F9; --lev-dim:rgba(0,0,0,.34); } }
+:root[data-theme="dark"]{ --ruler-span:#E879F9; --lev-dim:rgba(0,0,0,.34); }
+
+/* ---------- the header: the shelf's own colours, never the other labs' green ---------- */
+.hdr{background:var(--hdr-bg);color:var(--hdr-ink);border-bottom:1px solid var(--hdr-line);box-shadow:none}
+.hdr__title{font-weight:700;letter-spacing:-.01em}
+/* his name is never cut (memory header-footer-credit): the topic line gives way first */
+.hdr__title,.hdr__by{flex:none}
+.hdr__mark{flex:none}
+@media (max-width:1500px){ .hdr__sub{display:none} }
+@media (max-width:1300px) and (min-width:1001px){ .stat--stations{display:none} }
+.hdr__sub{color:var(--hdr-soft);opacity:1;font-size:12.5px;min-width:0;flex:0 1 auto}
+.hdr__by{color:var(--hdr-soft);opacity:1}
+.hdr__by:hover,.hdr__by:focus-visible{color:var(--hdr-ink)}
+.badge{background:var(--hdr-veil);border:1px solid var(--hdr-line);color:var(--hdr-ink);cursor:pointer}
+.stat{background:var(--hdr-veil);border:1px solid var(--hdr-line);color:var(--hdr-ink)}
+.stat--go:hover,.stat--go:focus-visible{background:var(--accent-tint)}
+.ring .bg{stroke:var(--hdr-line)}
+.ring .fg{stroke:var(--accent-2)}
+.hbtn{background:var(--hdr-veil);border:1px solid var(--hdr-line);color:var(--hdr-ink);text-decoration:none}
+.hbtn:hover{background:var(--accent-tint)}
+.hbtn--save.is-ok{background:var(--accent-tint);color:var(--accent);border-color:var(--accent-2)}
+.hbtn--save.is-ok:hover{background:var(--accent-tint)}
+.hbtn--save.is-busy{background:var(--hdr-veil);color:var(--hdr-ink);border-style:dashed}
+.hbtn--save.is-no{background:var(--bad-tint);color:var(--bad);border-color:var(--bad)}
+.hbtn--save.is-no:hover{background:var(--bad-tint)}
+.hbtn--save.is-off{background:transparent;color:var(--hdr-ink);border-style:dashed}
+#btnTheme{white-space:nowrap}
+
+/* the station's heading: a cell in the accent, its nucleus in the Foundations violet */
+.st-head__ic{background:var(--accent-tint);border:1px solid var(--edge);color:var(--accent)}
+.st-head__ic .ic-cell{fill:var(--accent-tint)}
+.st-head__ic .ic-nuc{fill:var(--k-cell);stroke:var(--k-cell)}
+.st-title{color:var(--ink);font-weight:700;letter-spacing:-.015em}
+
+/* ---------- the left column: each station's own picture ---------- */
+.platecol{position:relative;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+  background:var(--col-bg);color:var(--col-ink);border-right:1px solid var(--col-line)}
+.platecol__tools{position:relative;z-index:6;display:flex;align-items:center;gap:10px;padding:8px 12px;min-height:0}
+.platecol__tools:empty{display:none}
+.tool{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-ink);cursor:pointer;
+  border:1px solid var(--col-line);border-radius:var(--r-pill);padding:6px 12px;background:var(--col-card)}
+.tool:hover{border-color:var(--accent)}
+.tool[hidden]{display:none}
+.tool--sim{margin-right:auto}
+.viewhost{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+.viewhost[hidden]{display:none}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+.view[hidden]{display:none}
+.said{position:relative;z-index:4;margin:0;padding:8px 16px 12px;text-align:center;border-top:1px solid var(--col-line);background:var(--col-bg)}
+.said:empty{display:none}
+.said__name{display:block;font-size:14px;font-weight:600;color:var(--col-ink)}
+.said__credit{display:block;font-size:11.5px;color:var(--col-soft);margin-top:2px}
+.sim{flex:1;min-height:0;overflow:auto;padding:12px 14px 16px;display:flex;flex-direction:column}
+.sim[hidden]{display:none}
+.sim .widget{margin-top:0;border:none;box-shadow:none;background:transparent;padding:0}
+.platecol.is-sim .said{display:none}
+.stg__park{display:none}
+.stg__title{margin:2px 0 0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.stg__title[hidden]{display:none}
+
+/* a button that belongs to a picture */
+.vbtn{font:inherit;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  border:1.5px solid var(--accent);border-radius:var(--r-pill);background:var(--col-card);color:var(--accent);padding:7px 16px}
+.vbtn:hover{background:var(--accent-tint)}
+.vbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* labels on a picture: the line ends ON the part, no dot (Daniel, 4 Oct 2026) */
+.lb__dot{display:none}
+.lb__halo{stroke:var(--col-bg)}
+.lb__lead{stroke:var(--col-ink)}
+.lb__txt{fill:var(--col-ink);stroke:var(--col-bg)}
+.lb{cursor:pointer}
+.lb:focus-visible{outline:none}
+.lb:focus-visible .lb__txt,.lb:hover .lb__txt{fill:var(--accent)}
+.lb.is-lit .lb__txt{fill:var(--accent);font-weight:700}
+.lb.is-lit .lb__lead{stroke:var(--accent);stroke-width:2.6}
+.lb.is-dim{opacity:.45}
+
+/* ---------- station 2: the microscope ---------- */
+.mscope{flex:1;min-height:0;display:flex;flex-direction:column}
+.mscope__face{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;padding:8px 8px 8px}
+/* a picture's own buttons, in a bar above it */
+.vbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;padding:0 6px 6px}
+.mscope__face[hidden],.mscope__look[hidden]{display:none}
+.mscope__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
+.mscope__veil{fill:var(--on-photo-veil);opacity:0;transition:opacity .35s ease;pointer-events:none}
+.mscope__veil.is-on{opacity:1}
+.mscope__hit{fill:transparent;cursor:pointer}
+.mscope__beam{fill:none;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .3s;pointer-events:none}
+.mscope__beam.is-on{opacity:1}
+.mscope__glow0{stop-color:var(--beam-0)}
+.mscope__glow1{stop-color:var(--beam-1)}
+.mscope__go{flex:none}
+.mscope__look{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:12px;padding:12px 14px 14px;justify-items:center}
+.fov{position:relative;aspect-ratio:1;height:100%;max-height:100%;max-width:100%;border-radius:50%;overflow:hidden;
+  background:var(--fov-ring);box-shadow:0 0 0 10px var(--fov-ring),0 0 0 11px var(--col-line)}
+.fov__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:filter .25s ease}
+.fov__img[hidden]{display:none}
+.mscope__ctl{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 18px;width:100%}
+.nose{display:flex;align-items:center;gap:6px}
+.nose__h,.focus__h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-soft);margin-right:4px}
+.nose__b{font:inherit;font-weight:700;font-size:14px;min-width:52px;padding:6px 10px;border-radius:var(--r-pill);cursor:pointer;
+  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.nose__b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.focus{display:flex;align-items:center;gap:6px}
+.focus__in{width:150px;accent-color:var(--accent)}
+.mscope__sum{margin:0;width:100%;text-align:center;font-size:14px;line-height:1.45;color:var(--col-ink)}
+.mscope__eq{display:block;font-variant-numeric:tabular-nums}
+.mscope__say{display:block;color:var(--col-soft);font-size:13px}
+.mscope__back{flex:none}
+.mscope__hint{margin:0;width:100%;text-align:center;font-size:13.5px;font-weight:600;color:var(--amber)}
+.mscope__hint[hidden]{display:none}
+
+/* ---------- station 3: one cell, many sizes ---------- */
+.mag{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 14px 12px}
+.mag__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
+.mag__pqhalo{stroke:var(--on-photo-halo);stroke-width:9;stroke-linecap:round}
+.mag__pqline{stroke:var(--on-photo-ink);stroke-width:3.2;stroke-linecap:round}
+.mag__pt{font:700 34px var(--font);fill:var(--on-photo-ink);paint-order:stroke;stroke:var(--on-photo-halo);stroke-width:7px}
+.mag__rbody{fill:var(--ruler-body);stroke:var(--ruler-edge);stroke-width:1.5}
+.mag__tick{stroke:var(--ruler-ink);stroke-width:1.4}
+.mag__tick--cm{stroke-width:2.2}
+.mag__rnum{font:600 22px var(--font);fill:var(--ruler-ink);text-anchor:middle}
+.mag__runit{font:600 18px var(--font);fill:var(--ruler-ink)}
+.mag__span{fill:var(--ruler-span);opacity:.55;transition:opacity .2s}
+.mag__span.is-lit{opacity:.95}
+.mag__row{display:flex;justify-content:center}
+.mag__sl{display:flex;align-items:center;gap:10px;width:min(100%,460px)}
+.mag__slh{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-soft);white-space:nowrap}
+.mag__in{flex:1;accent-color:var(--accent)}
+.mag__sums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mag__q{font:inherit;text-align:left;display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:var(--r);cursor:pointer;
+  border:1px solid var(--col-line);background:var(--col-card);color:var(--col-ink);min-width:0}
+.mag__q.is-lit{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-tint)}
+.mag__k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-soft)}
+.mag__v{font-size:13.5px;line-height:1.35}
+.mag__v b{font-size:15px;font-variant-numeric:tabular-nums}
+.mag__find{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}
+.mag__findh{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-soft);margin-right:4px}
+.mag__fb{font:inherit;font-size:13px;font-weight:600;padding:5px 12px;border-radius:var(--r-pill);cursor:pointer;
+  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.mag__fb[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.mag__work{margin:0;text-align:center;font-size:14.5px;line-height:1.55;color:var(--col-ink);font-variant-numeric:tabular-nums}
+.mag__note{display:block;font-size:12.5px;color:var(--col-soft)}
+@media (max-width:620px){ .mag__sums{grid-template-columns:minmax(0,1fr)} .mag__q{flex-direction:row;justify-content:space-between;align-items:baseline} }
+
+/* ---------- a sentence as a card: the heading always shows, the words open one card at a time ---------- */
+.exam-list > li.xcard{padding:0;margin:0 0 8px}
+.exam-list > li.xcard::before{display:none}
+.xcard__h{width:100%;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;
+  font:inherit;font-size:15.5px;font-weight:600;color:var(--ink);background:var(--card-2);
+  border:1px solid var(--edge);border-radius:var(--r);padding:10px 14px}
+.xcard__h:hover{border-color:var(--accent)}
+.xcard__h:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.xcard__t{flex:1;min-width:0}
+.xcard__a{width:9px;height:9px;border-right:2px solid var(--grey);border-bottom:2px solid var(--grey);transform:rotate(45deg);transition:transform .2s;flex:none;margin-top:-4px}
+.xcard.is-open .xcard__h{border-color:var(--accent);background:var(--accent-tint);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.xcard.is-open .xcard__a{transform:rotate(225deg);margin-top:4px}
+.xcard__b{border:1px solid var(--accent);border-top:0;border-radius:0 0 var(--r) var(--r);padding:12px 14px;background:var(--card)}
+.xcard__b[hidden]{display:none}
+@media (prefers-reduced-motion: reduce){ .xcard__a,.mscope__veil,.mscope__beam,.fov__img{transition:none} }
+
+/* the inks of this lab (js/terms.js) */
+.t--cell{color:var(--k-cell)} .t--size{color:var(--k-size)} .t--org{color:var(--k-org)}
+.chip--cell{background:var(--k-cell);color:var(--on-ink)} .chip--size{background:var(--k-size);color:var(--on-ink)}
+.chip--org{background:var(--k-org);color:var(--on-ink)} .chip--skill{background:var(--accent);color:var(--on-ink)}
+
+/* ---------- phone and upright tablet: the picture as a strip above the notes ---------- */
+@media (max-width:1000px) and (min-height:561px){
+  .platecol{height:min(46vh,420px)}
+  .platecol.is-folded .viewhost,.platecol.is-folded .said{display:none}
+}
+@media (max-width:1000px) and (min-height:561px){
+  .mag{gap:5px;padding:6px 10px 8px}
+  .mag__svg{min-height:130px}
+  .mag__sums{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .mag__q{flex-direction:column;align-items:flex-start;padding:5px 7px}
+  .mag__v{font-size:12px}
+  .mag__v b{font-size:13.5px}
+  .mag__note{display:none}
+  .mag__w{display:none}
+  .mag__work{font-size:13px;line-height:1.4}
+  .mag__fb{padding:3px 9px;font-size:12px}
+  .mag__findh,.mag__slh{display:none}
+}
+@media (max-width:620px){
+  .said{display:none}
+  .mscope__ctl{gap:6px 12px}
+  .focus__in{width:110px}
+  .nose__b{min-width:44px;padding:5px 8px}
+  .mscope__say{display:none}
+}
+
+/* "Check yourself": a yellow highlighter under red-brown words, the same in both versions (a highlighter does not
+   change in the dark); the box keeps the theme's own ground */
+:root{ --gold-ink:#8A2A1E; --gold-mark:#FFE36B; }
+.golden__h,.exam-alert__h{color:var(--gold-ink);background:linear-gradient(180deg,transparent 14%,var(--gold-mark) 14%,var(--gold-mark) 92%,transparent 92%)}
+.golden p + p{margin-top:8px}
+
+/* ---------- the shared look of a picture's own controls ---------- */
+.cellv__mode{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:var(--r-pill);cursor:pointer;
+  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.cellv__mode[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.cellv__mode:focus-visible,.cmp__chip:focus-visible,.spc__t:focus-visible,.lev__rb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vbtn[disabled]{opacity:.45;cursor:default}
+
+/* ---------- stations 5–7: one cell, several ways of seeing it ---------- */
+.cellv{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 8px 8px}
+.cellv__stage{flex:1;min-height:0;display:flex}
+.cellv__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
+.cellv__veil{fill:var(--on-photo-veil);opacity:0;transition:opacity .3s ease;pointer-events:none}
+.cellv__veil.is-on{opacity:1}
+.cellv__note{margin:6px 8px 0;font-size:13.5px;font-weight:600;color:var(--amber);text-align:center}
+.cellv__note[hidden]{display:none}
+
+/* ---------- station 1: from body to cell ---------- */
+.lev{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
+.lev__main{flex:1;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:stretch}
+.lev__ladder{list-style:none;margin:0;padding:0 0 0 14px;display:flex;flex-direction:column;justify-content:space-between;border-left:2px solid var(--col-line)}
+.lev__rung{position:relative}
+.lev__rung::before{content:"";position:absolute;left:-21px;top:12px;width:12px;height:12px;border-radius:50%;border:2px solid var(--col-line);background:var(--col-bg)}
+.lev__rung.is-on::before{border-color:var(--accent);background:var(--accent)}
+.lev__rung.is-above::before{border-color:var(--accent)}
+.lev__rb{font:inherit;text-align:left;background:none;border:0;cursor:pointer;color:var(--col-soft);display:flex;flex-direction:column;padding:4px 2px}
+.lev__rung.is-on .lev__rb{color:var(--col-ink)}
+.lev__rn{font-size:14px;font-weight:700}
+.lev__rw{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em}
+.lev__frame{position:relative;align-self:center;justify-self:center;max-width:100%;max-height:100%;height:100%;border-radius:var(--r);overflow:hidden;background:var(--col-card);border:1px solid var(--col-line)}
+.lev__img{display:block;width:100%;height:100%;object-fit:contain}
+.lev__box{position:absolute;border:2.5px solid var(--accent);border-radius:6px;box-shadow:0 0 0 2px var(--col-bg),0 0 0 9999px var(--lev-dim);pointer-events:none}
+.lev__box[hidden]{display:none}
+.lev__frame.is-in .lev__img{animation:levIn .45s ease-out}
+.lev__frame.is-out .lev__img{animation:levOut .45s ease-out}
+@keyframes levIn{from{transform:scale(.82);opacity:.2}to{transform:none;opacity:1}}
+@keyframes levOut{from{transform:scale(1.18);opacity:.2}to{transform:none;opacity:1}}
+.lev__nav{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.lev__where{margin:0;font-size:13.5px;color:var(--col-soft);text-align:center;flex:1;min-width:120px}
+.lev__where b{color:var(--col-ink)}
+
+/* ---------- station 4: a ruler you zoom into ---------- */
+.units{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px 10px 10px}
+.units__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
+.units__rbody{fill:var(--ruler-body);stroke:var(--ruler-edge);stroke-width:1.5}
+.units__tick{stroke:var(--ruler-ink);stroke-width:2}
+.units__tick--s{stroke-width:1.2}
+.units__mm,.units__um{font:600 24px var(--font);fill:var(--ruler-ink)}
+.units__um{fill:var(--ruler-span)}
+.units__unit{font:700 22px var(--font);fill:var(--col-ink)}
+.units__unit--um{fill:var(--ruler-span)}
+.units__sum p{margin:0;text-align:center;font-size:14px;line-height:1.45;color:var(--col-ink)}
+.units__sees{color:var(--col-soft)!important;font-size:13.5px!important}
+
+/* ---------- station 8: three cells compared ---------- */
+.cmp{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
+.cmp__chips{display:flex;flex-wrap:wrap;gap:5px}
+.cmp__chips[hidden],.cmp__stage[hidden],.cmp__sizes[hidden]{display:none}
+.cmp__chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:var(--r-pill);cursor:pointer;border:1px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.cmp__chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent);font-weight:700}
+.cmp__stage{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cmp__cell{margin:0;display:flex;flex-direction:column;min-height:0;transition:opacity .25s}
+.cmp__cell.is-none{opacity:.55}
+.cmp__svg{flex:1;min-height:0;width:100%;height:100%}
+.cmp__cap{text-align:center;font-size:13px;display:flex;flex-direction:column;gap:2px}
+.cmp__name{font-weight:700;color:var(--col-ink)}
+.cmp__mark{font-weight:700;min-height:1.3em}
+.cmp__mark.is-yes{color:var(--ok)} .cmp__mark.is-no{color:var(--bad)}
+.cmp__verdict{margin:0;text-align:center;font-size:13.5px;color:var(--col-soft);min-height:1.4em}
+.cmp__sizes{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.cmp__srow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+.cmp__sfig{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.cmp__simg{display:block;height:auto;border-radius:4px}
+.cmp__scap{font-size:12.5px;text-align:center;color:var(--col-soft)}
+.cmp__scap b{display:block;color:var(--col-ink)}
+.cmp__bar{display:flex;align-items:center;gap:8px;padding-left:4px}
+.cmp__barline{display:block;height:4px;background:var(--col-ink);border-radius:2px;min-width:4px}
+.cmp__barlab{font-family:var(--mono);font-size:12px;color:var(--col-ink)}
+
+/* ---------- station 9: specialised cells ---------- */
+.spc{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px 10px 10px}
+.spc__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
+.spc__job{margin:0;text-align:center;font-size:14px;line-height:1.45;color:var(--col-ink)}
+.spc__where{display:block;font-size:12.5px;color:var(--col-soft)}
+.spc__strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.spc__t{font:inherit;padding:3px;border-radius:8px;cursor:pointer;border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink);display:flex;flex-direction:column;gap:2px;min-width:0}
+.spc__t img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px}
+.spc__tn{font-size:10.5px;line-height:1.15;text-align:center;overflow-wrap:anywhere}
+.spc__t[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint)}
+
+/* ---------- station 10: a drawing and its faults ---------- */
+.drw{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
+.drw__row{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr);gap:10px;align-items:center}
+.drw__svg{width:100%;height:auto;aspect-ratio:760/640;max-height:100%;min-height:0;display:block;background:var(--paper-sheet);border-radius:var(--r);border:1px solid var(--col-line)}
+.drw__photo{margin:0;display:flex;flex-direction:column;gap:4px;align-items:center}
+.drw__photo img{width:100%;height:auto;border-radius:6px;display:block}
+.drw__photo figcaption{font-size:12px;color:var(--col-soft)}
+.drw__line{fill:none;stroke:var(--pencil);stroke-width:2.6;stroke-linejoin:round}
+.drw__line--sketch{stroke-width:1.6;stroke-linecap:round}
+.drw__hatchl{stroke:var(--pencil);stroke-width:1.3;opacity:.55}
+.drw__nuc--shade{fill:var(--pencil);fill-opacity:.55}
+.drw__lead{stroke:var(--pencil);stroke-width:1.8}
+.drw__arrow{fill:var(--pencil)}
+.drw__lab{font:500 26px var(--font);fill:var(--pencil)}
+.drw__mag{font:500 24px var(--font);fill:var(--pencil)}
+.drw__ring{fill:none;stroke:var(--ruler-span);stroke-width:5;stroke-dasharray:14 8}
+.drw__say{margin:0;font-size:14px;line-height:1.45;color:var(--col-ink);text-align:center;min-height:2.9em}
+.drw__show[hidden]{display:none}
+:root{ --paper-sheet:#FBFBF8; --pencil:#2E3338; }
+
+/* ---------- station 11: measuring by counting ---------- */
+.meas{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
+.meas__svg{flex:1;min-height:0;width:100%;height:100%;display:block;border-radius:var(--r)}
+.meas__hit{fill:transparent;cursor:crosshair}
+.meas__halo{stroke:var(--on-photo-halo);stroke-width:7}
+.meas__line{stroke:var(--on-photo-ink);stroke-width:3}
+.meas__lab{font:700 18px var(--font);fill:var(--on-photo-ink);paint-order:stroke;stroke:var(--on-photo-halo);stroke-width:5px}
+.meas__dot{fill:var(--ruler-span);stroke:var(--on-photo-halo);stroke-width:2.5}
+.meas__n{font:700 15px var(--font);fill:var(--on-photo-ink);paint-order:stroke;stroke:var(--on-photo-halo);stroke-width:4px}
+.meas__bar{justify-content:center}
+.meas__work p{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--col-ink)}
+.meas__eq{font-variant-numeric:tabular-nums}
+.meas__note{color:var(--col-soft)!important;font-size:12.5px!important}
+
+/* ---------- phones: each picture keeps its picture first ---------- */
+@media (max-width:1000px) and (min-height:561px){
+  .lev__ladder{display:none}
+  .lev__main{grid-template-columns:minmax(0,1fr)}
+  .spc__tn{display:none}
+  .drw__row{grid-template-columns:minmax(0,1fr)}
+  .drw__photo{display:none}
+  .cmp__chips{gap:4px} .cmp__chip{padding:3px 8px;font-size:12px}
+  .units__sees,.drw__say,.meas__note{font-size:12px!important}
+  .cellv__mode{padding:4px 9px;font-size:12px}
+}
+/* a phone shows the ruler and the drawing about a third of their desktop size: their words grow to stay readable */
+@media (max-width:620px){
+  .units__mm,.units__um{font-size:44px} .units__unit{font-size:40px}
+  .drw__lab{font-size:40px} .drw__mag{font-size:34px}
+  .drw__svg{aspect-ratio:800/640}
+}
