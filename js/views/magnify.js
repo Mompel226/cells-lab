@@ -29,6 +29,8 @@
 
   function make(spec, ctx) {
     var VW = 1260, VH = 840, PX = 80, PY = 400, RULER = 110;   /* ruler length in mm */
+    /* a phone shows this drawing at about a quarter of its size: the ruler's words are drawn larger there (8 Oct 2026) */
+    var NARROW = !!(global.matchMedia && global.matchMedia('(max-width: 620px)').matches);
     var len = Math.hypot(spec.Q[0] - spec.P[0], spec.Q[1] - spec.P[1]);
     var actual = spec.actual || 0.06;
     var L = spec.start || 60, find = 'mag';
@@ -37,7 +39,14 @@
     var svg = el('svg', { viewBox: '0 0 ' + VW + ' ' + VH, class: 'mag__svg', role: 'img',
       'aria-label': 'A cheek cell under the microscope, lying along the line P to Q, with a clear ruler laid along P to Q. The slider below makes the picture larger or smaller; the ruler stays the same.' });
     var pic = el('g', { class: 'mag__pic' }, svg);
-    var img = el('image', { href: 'assets/photos/' + spec.img, x: 0, y: 0, width: spec.w, height: spec.h, preserveAspectRatio: 'none' }, pic);
+    /* the photograph's edges fade into the page, so it reads as a view down the microscope, not a pasted card
+       (8 Oct 2026 review) */
+    var mid = 'mf' + Math.random().toString(36).slice(2, 7), defs = el('defs', {}, svg);
+    var soft = el('filter', { id: mid + 'b', x: '-20%', y: '-20%', width: '140%', height: '140%' }, defs);
+    el('feGaussianBlur', { stdDeviation: (Math.min(spec.w, spec.h) * 0.03).toFixed(1) }, soft);
+    var feather = el('mask', { id: mid, maskUnits: 'userSpaceOnUse', maskContentUnits: 'userSpaceOnUse', x: 0, y: 0, width: spec.w, height: spec.h }, defs);
+    el('rect', { x: spec.w * 0.05, y: spec.h * 0.06, width: spec.w * 0.9, height: spec.h * 0.88, fill: '#fff', filter: 'url(#' + mid + 'b)' }, feather);
+    var img = el('image', { href: 'assets/photos/' + spec.img, x: 0, y: 0, width: spec.w, height: spec.h, preserveAspectRatio: 'none', mask: 'url(#' + mid + ')' }, pic);
     var pq = el('g', { class: 'mag__pq' }, svg);
     var pqHalo = el('line', { class: 'mag__pqhalo' }, pq);
     var pqLine = el('line', { class: 'mag__pqline' }, pq);
@@ -50,9 +59,10 @@
     for (var mm = 0; mm <= RULER; mm++) {
       var tall = mm % 10 === 0 ? 30 : mm % 5 === 0 ? 21 : 13;
       el('line', { x1: mm * 10, y1: 0, x2: mm * 10, y2: tall, class: 'mag__tick' + (mm % 10 === 0 ? ' mag__tick--cm' : '') }, ruler);
-      if (mm % 10 === 0) { var t = el('text', { x: mm * 10, y: 58, class: 'mag__rnum' }, ruler); t.textContent = mm; }
+      /* a phone: a number every 20 mm, or the numbers touch */
+      if (mm % 10 === 0 && (!NARROW || mm % 20 === 0)) { var t = el('text', { x: mm * 10, y: NARROW ? 82 : 58, class: 'mag__rnum' }, ruler); t.textContent = mm; }
     }
-    var mmLab = el('text', { x: RULER * 10 + 4, y: 84, class: 'mag__runit' }, ruler); mmLab.textContent = 'mm';
+    var mmLab = el('text', { x: RULER * 10 + 4, y: NARROW ? 40 : 84, class: 'mag__runit' }, ruler); mmLab.textContent = 'mm';   /* a phone: above the end of the ruler, clear of its last number */
     var span = el('rect', { x: 0, y: 0, width: 0, height: 8, class: 'mag__span' }, ruler);
 
     root.appendChild(svg);
@@ -88,7 +98,7 @@
     work.setAttribute('aria-live', 'polite');
     root.appendChild(work);
 
-    var lit = null;
+    /* the box lit is always the quantity being calculated (8 Oct 2026 review: the pills and the boxes disagreed) */
     function paint() {
       var k = L * 10 / len;                                   /* picture units per photo pixel */
       var ox = PX - spec.P[0] * k, oy = PY - spec.P[1] * k;    /* P stays at the ruler's 0 */
@@ -102,14 +112,14 @@
       rows.image.innerHTML = '<span class="mag__k">Image size</span><span class="mag__v"><span class="mag__w">P to Q on the ruler: </span><b>' + L + ' mm</b></span>';
       rows.actual.innerHTML = '<span class="mag__k">Actual size</span><span class="mag__v"><span class="mag__w">a cheek cell is about </span><b>' + num(actual) + ' mm</b><span class="mag__w"> long</span></span>';
       rows.mag.innerHTML = '<span class="mag__k">Magnification</span><span class="mag__v"><b>×' + num(m) + '</b></span>';
-      Object.keys(rows).forEach(function (r) { rows[r].classList.toggle('is-lit', lit === r); });
+      Object.keys(rows).forEach(function (r) { rows[r].classList.toggle('is-lit', find === r); });
       findBtns.forEach(function (b, i) { b.setAttribute('aria-pressed', FIND[i][0] === find ? 'true' : 'false'); });
       var w;
       if (find === 'mag') w = 'magnification = image size ÷ actual size<br>= ' + L + ' mm ÷ ' + num(actual) + ' mm = <b>×' + num(m) + '</b> <span class="mag__note">(mm ÷ mm: the units cancel, so a magnification has no unit)</span>';
       else if (find === 'actual') w = 'actual size = image size ÷ magnification<br>= ' + L + ' mm ÷ ' + num(m) + ' = <b>' + num(actual) + ' mm</b>';
       else w = 'image size = actual size × magnification<br>= ' + num(actual) + ' mm × ' + num(m) + ' = <b>' + L + ' mm</b>';
       work.innerHTML = w;
-      span.classList.toggle('is-lit', lit === 'image');
+      span.classList.toggle('is-lit', find === 'image');
     }
     range.addEventListener('input', function () { L = +range.value; paint(); });
 
@@ -118,7 +128,7 @@
       say: 'One cheek cell, and a clear ruler laid along it from P to Q',
       credit: 'Photograph: Daliasalloum, Wikimedia Commons, CC BY 4.0 (turned and cut out for this lab)',
       labels: { image: 'the image size', actual: 'the actual size', mag: 'the magnification' },
-      focus: function (part) { lit = rows[part] ? part : null; if (part === 'mag' || part === 'actual' || part === 'image') find = part; paint(); },
+      focus: function (part) { if (rows[part]) find = part; paint(); },
       stop: function () {}
     };
     paint();

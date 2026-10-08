@@ -55,21 +55,21 @@
         var x = Math.min(W - 1.5, Math.max(1.5, i * W / 10)), big = i % 5 === 0;
         el('line', { x1: x, y1: RULER_Y + 30, x2: x, y2: RULER_Y + 30 + (big ? 26 : 16), class: 'units__tick' }, rul);
         for (var q = 1; q < 5 && i < 10; q++) { var xs = x + q * W / 50; el('line', { x1: xs, y1: RULER_Y + 30, x2: xs, y2: RULER_Y + 38, class: 'units__tick units__tick--s' }, rul); }
-        if (i % 2 === 0 || (k < 2 && !narrow)) {
+        if (narrow ? i % 5 === 0 : (i % 2 === 0 || k < 2)) {   /* a phone: 0, the middle and the end, with its unit */
           var anchor = i === 0 ? 'start' : i === 10 ? 'end' : 'middle';
-          var t1 = el('text', { x: x, y: RULER_Y + 20, class: 'units__mm', 'text-anchor': anchor }, rul); t1.textContent = num(s.mm * i / 10);
-          var t2 = el('text', { x: x, y: RULER_Y + (narrow ? 98 : 78), class: 'units__um', 'text-anchor': anchor }, rul); t2.textContent = num(spanUm * i / 10);
+          var t1 = el('text', { x: x, y: RULER_Y + 20, class: 'units__mm', 'text-anchor': anchor }, rul); t1.textContent = num(s.mm * i / 10) + (narrow && i === 10 ? ' mm' : '');
+          var t2 = el('text', { x: x, y: RULER_Y + (narrow ? 98 : 78), class: 'units__um', 'text-anchor': anchor }, rul); t2.textContent = num(spanUm * i / 10) + (narrow && i === 10 ? ' µm' : '');
         }
       }
-      var u1 = el('text', { x: W - 4, y: RULER_Y - (narrow ? 16 : 12), class: 'units__unit', 'text-anchor': 'end' }, rul); u1.textContent = 'mm';
-      var u2 = el('text', { x: W - 4, y: RULER_Y + (narrow ? 140 : 104), class: 'units__unit units__unit--um', 'text-anchor': 'end' }, rul); u2.textContent = 'µm';
+      var u1 = el('text', { x: W - 4, y: RULER_Y - 12, class: 'units__unit', 'text-anchor': 'end' }, rul); u1.textContent = narrow ? '' : 'mm';   /* on a phone the unit rides on the last number */
+      var u2 = el('text', { x: W - 4, y: RULER_Y + 104, class: 'units__unit units__unit--um', 'text-anchor': 'end' }, rul); u2.textContent = narrow ? '' : 'µm';
       /* the picture at its true size against the ruler */
       var c = s.crop, sc = s.umPerPx * upu;
       pic.setAttribute('href', 'assets/photos/' + s.img);
       pic.setAttribute('width', (s.iw * sc).toFixed(1)); pic.setAttribute('height', (s.ih * sc).toFixed(1));
       pic.setAttribute('x', (-c[0] * sc).toFixed(1)); pic.setAttribute('y', (PIC_Y - c[1] * sc).toFixed(1));
       clipR.setAttribute('width', Math.min(W, c[2] * sc).toFixed(1)); clipR.setAttribute('height', Math.min(450, c[3] * sc).toFixed(1));
-      sum.innerHTML = '<p class="units__eq"><b>' + num(s.mm) + ' mm = ' + num(spanUm) + ' µm</b> · mm × 1000 = µm · µm ÷ 1000 = mm</p><p class="units__sees">' + s.sees + '</p>';
+      sum.innerHTML = '<p class="units__eq"><b class="units__r">' + num(s.mm) + ' mm = ' + num(spanUm) + ' µm</b> · <span class="units__r">mm × 1000 = µm</span> · <span class="units__r">µm ÷ 1000 = mm</span></p><p class="units__sees">' + s.sees + '</p>';
       api.say = s.say; api.credit = s.credit; ctx.caption();
     }
     var api = {
