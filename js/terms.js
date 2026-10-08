@@ -58,7 +58,7 @@
   var BERK = 'Berkshire Community College Bioscience Image Library, CC0', HAGG = 'Mikael Häggström, Wikimedia Commons, CC0';
   var CONTEXT = {
     /* the Organ card names the tissues of the uterus; the connective tissue is real under the lining of the cervix */
-    levels: { 'connective tissue': ['connective-tissue-900.jpg', '<b>Connective tissue</b> under the lining of the cervix: a few scattered cells (their dark nuclei) among pale pink fibres. It supports the tissues round it and holds them together.', HAGG] },
+    levels: { 'connective tissue': ['connective-tissue-900.jpg', '<b>Connective tissue</b> under the lining of the cervix: a few scattered cells (their dark nuclei) among pale pink fibres. It supports and connects the tissues round it.', HAGG] },
     /* a root hair cell, named in the plant station before its own station: seeing it in the soil answers "why no chloroplasts?" */
     plant: { 'root hair cell': ['root-hair-900.jpg', 'A <b>root hair cell</b> on the outside of a root: its long, thin root hair grows into the soil, where there is no light. The cell has no chloroplasts.', BERK] }
   };

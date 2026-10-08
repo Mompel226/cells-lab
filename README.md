@@ -33,7 +33,7 @@ the answer.
 | 🔭 **A real microscope** | follow the light from the lamp to the eye, turn the nosepiece and focus a real nerve cell at ×40, ×100 and ×400 |
 | 📏 **Sizes you can see** | a cell that grows on a slider while its actual size never changes; a ruler that zooms from 1 mm to 5 µm, with real tissue, a mitochondrion and bacteria on it at their true scale |
 | 🧫 **Each cell seen three ways** | the drawing, the light microscope and the electron microscope: a part you cannot see with one opens the one that shows it, and says why |
-| ✏️ **Drawing and measuring, never the report** | the rules of a biological drawing, found by spotting them broken, and the counting method on a different specimen: the lab never shows the specimen of the assessed practical |
+| ✏️ **Drawing and measuring, never the report** | the rules of a biological drawing, learnt by finding the fault in each drawing, and the counting method on a different specimen: the lab never shows the specimen of the assessed practical |
 | 📖 **A shared glossary** | one wording per term, the same in every lab |
 
 > [!NOTE]
