@@ -157,7 +157,7 @@
         if (why) addSay(rsays, R.s.name, why);
       });
       verdict.textContent = mode === 'sizes' ? spec.sizesNote || '' : mode === 'real' ? (!lit ? spec.realNote || '' : joinSays(rsays)) :
-        !lit ? 'Choose a part: it lights in every cell that has it.' : joinSays(says);
+        !lit ? 'Choose a part: it is highlighted in every cell that has it.' : joinSays(says);
       api.say = mode === 'sizes' ? 'Three kinds of cell, drawn at their typical sizes, against one 10 µm bar' :
         mode === 'real' ? 'Three real cells, photographed with a light microscope, at one scale' : 'An animal cell, a plant cell and a bacterium, drawn about the same size (not to scale)';
       api.credit = mode === 'sizes' ? spec.sizesCredit : mode === 'real' ? spec.realCredit : spec.credit;
