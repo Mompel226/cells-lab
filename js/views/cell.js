@@ -8,7 +8,11 @@
    microscope), the picture changes to one that can, and says why: that is the station's lesson.
 
    spec: { kind:'cell', parts:[…], modes:[{ id, name, img | svg, w, h, pts:{ part:[x, y] }, say, credit,
-           cannot:{ part: 'why it cannot be seen here' } }] }
+           cannot:{ part: 'why it cannot be seen here' }, heads:[{ x, t }] }] }
+   `heads` are short headings centred on x: above the picture, or at y (picture units, the baseline) for a heading inside
+   it (two photographs one above the other: "In water", then "After losing water" in the band between them).
+   `narrow: { img, iw, ih, w, h, pts, heads, alt }` is the same picture arranged for a narrow stage (a phone, under 520 px):
+   the two photographs side by side instead of one above the other.
    Points are in the picture's own pixels; a drawing (svg) uses its own viewBox units.
    ============================================================ */
 (function (global) {
@@ -24,6 +28,15 @@
   var NAMES = { membrane: 'cell membrane', wall: 'cell wall', nucleus: 'nucleus', cytoplasm: 'cytoplasm', mitochondria: 'mitochondria',
     ribosomes: 'ribosomes', chloroplast: 'chloroplast', vacuole: 'vacuole', dna: 'circular DNA', plasmid: 'plasmid',
     capsule: 'capsule (beyond 0610)', flagellum: 'flagellum (beyond 0610)', shrunk: 'cytoplasm, shrunk away from the wall' };
+  /* on a picture a label line ends on ONE mitochondrion, so it names one (8 Oct 2026 review); the cards keep NAMES */
+  var PIC = { mitochondria: 'mitochondrion' };
+  function labelOf(m, p) { return (m.names && m.names[p]) || PIC[p] || NAMES[p] || p; }
+  /* the longest line of a label once it wraps at W letters, the way CircLearn.labels wraps it */
+  function lineMax(text, W) {
+    var cap = W * 0.56 / 0.52, n = 0, cur = '';
+    String(text).split(' ').forEach(function (wd) { var tr = cur ? cur + ' ' + wd : wd; if (tr.length > cap && cur) { n = Math.max(n, cur.length); cur = wd; } else cur = tr; });
+    return Math.max(n, cur.length);
+  }
 
   function make(spec, ctx) {
     var root = h('div', 'cellv');
@@ -47,45 +60,154 @@
       var mask = el('mask', { id: uid + 'm' + k, maskUnits: 'userSpaceOnUse', x: m.x0 || 0, y: m.y0 || 0, width: m.w, height: m.h }, defs);
       el('rect', { x: m.x0 || 0, y: m.y0 || 0, width: m.w, height: m.h, fill: '#fff' }, mask);
       var hole = el('ellipse', { cx: 0, cy: 0, rx: 0, ry: 0, fill: '#000', filter: 'url(#' + uid + 'f' + k + ')' }, mask);
-      /* the picture at its full size; the view is cropped to x0, y0, w, h (a drawing's own viewBox units) */
-      el('image', { href: 'assets/photos/' + (m.svg || m.img), x: 0, y: 0, width: m.iw || m.w, height: m.ih || m.h, preserveAspectRatio: 'none' }, svg);
+      /* the picture at its full size, CLIPPED to the crop x0, y0, w, h (a drawing's own viewBox units): without the clip
+         the rest of the photograph shows in the label margins and above and below the crop (8 Oct 2026 review) */
+      var clip = el('clipPath', { id: uid + 'c' + k }, defs);
+      var clipR = el('rect', { x: m.x0 || 0, y: m.y0 || 0, width: m.w, height: m.h }, clip);
+      var img = el('image', { href: 'assets/photos/' + (m.svg || m.img), x: 0, y: 0, width: m.iw || m.w, height: m.ih || m.h, preserveAspectRatio: 'none',
+        'clip-path': 'url(#' + uid + 'c' + k + ')' }, svg);
       var veil = el('rect', { x: m.x0 || 0, y: m.y0 || 0, width: m.w, height: m.h, class: 'cellv__veil', mask: 'url(#' + uid + 'm' + k + ')' }, svg);
       var labG = el('g', {}, svg);
       svg.style.display = k === 0 ? '' : 'none';
       stage.appendChild(svg);
-      return { spec: m, btn: b, svg: svg, labG: labG, hole: hole, veil: veil, font: 0 };
+      return { spec: m, cur: m, narrowSpec: m.narrow ? Object.assign({}, m, m.narrow) : null, btn: b, svg: svg, labG: labG, hole: hole, veil: veil,
+        img: img, clipR: clipR, mask: mask, maskR: mask.firstChild, blur: f.firstChild, font: 0 };
     });
+    /* the arrangement of this picture for the stage's width; swapped in place when it changes */
+    function variant(M, r) {
+      var want = r.width < 520 && M.narrowSpec ? M.narrowSpec : M.spec;
+      if (M.cur === want) return;
+      M.cur = want;
+      var m = want, box = { x: m.x0 || 0, y: m.y0 || 0, width: m.w, height: m.h };
+      M.img.setAttribute('href', 'assets/photos/' + (m.svg || m.img));
+      M.img.setAttribute('width', m.iw || m.w); M.img.setAttribute('height', m.ih || m.h);
+      [M.clipR, M.mask, M.maskR, M.veil].forEach(function (e) { Object.keys(box).forEach(function (a) { e.setAttribute(a, box[a]); }); });
+      M.blur.setAttribute('stdDeviation', String(Math.max(m.w, m.h) / 40));
+      M.svg.setAttribute('aria-label', m.alt || m.name);
+    }
 
     var cur = 0, lit = null;
     /* labels at about 14 px on any screen: the font, and the margins it needs, in the picture's own units */
     function fit(M) {
       var r = M.svg.getBoundingClientRect(); if (!r.width || !r.height) return;
-      var m = M.spec, f = 40;
-      /* labels wrap at about ten letters (never inside a word), so a wide photograph keeps most of the width */
-      var nameOf = function (p) { return (m.names && m.names[p]) || NAMES[p] || p; };
-      var WRAP = Object.keys(m.pts).reduce(function (n, p) { return Math.max(n, nameOf(p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 10);
-      M.wrap = WRAP;
-      var widest = function (side) { return Object.keys(m.pts).filter(function (p) { return sideOf(M, p) === side; })
-        .reduce(function (n, p) { return Math.max(n, Math.min(WRAP, nameOf(p).length)); }, 0); };
-      var wl = widest('L'), wr = widest('R');
-      for (var n = 0; n < 4; n++) {
-        var L = wl ? f * 0.56 * wl + 30 : 10, R = wr ? f * 0.56 * wr + 30 : 10;
-        var ppu = Math.min(r.width / (m.w + L + R), r.height / (m.h + 20));
-        f = Math.max(12, Math.min(m.w / 6, 14 / ppu));
+      variant(M, r);
+      var m = M.cur;
+      /* labels wrap at about ten letters (never inside a word), so a wide photograph keeps most of the width; where the
+         height limits the picture anyway, they take the spare width and wrap less (8 Oct 2026 review: a long name in
+         five one-word lines) */
+      var nameOf = function (p) { return labelOf(m, p); };
+      var keys = Object.keys(m.pts);
+      var W0 = keys.reduce(function (n, p) { return Math.max(n, nameOf(p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 10);
+      var W1 = Math.min(18, keys.reduce(function (n, p) { return Math.max(n, nameOf(p).length); }, 0));
+      function sizes(W) {
+        /* each margin as wide as ITS OWN longest line (a short word on one side leaves the picture more room) */
+        var widest = function (side) { return keys.filter(function (p) { return sideOf(M, p) === side; })
+          .reduce(function (n, p) { return Math.max(n, lineMax(nameOf(p), W)); }, 0); };
+        var wl = widest('L'), wr = widest('R'), f = 40, L, R, ppu;
+        for (var n = 0; n < 4; n++) {
+          L = wl ? f * 0.56 * wl + 30 : 10; R = wr ? f * 0.56 * wr + 30 : 10;
+          ppu = Math.min(r.width / (m.w + L + R), r.height / (m.h + 20 + headU(m, f)));
+          f = Math.max(12, Math.min(m.w / 6, 14 / ppu));
+        }
+        L = wl ? f * 0.56 * wl + 30 : 10; R = wr ? f * 0.56 * wr + 30 : 10;
+        return { W: W, f: f, L: L, R: R, roomy: r.width / (m.w + L + R) >= r.height / (m.h + 20 + headU(m, f)) };
       }
-      var L0 = wl ? f * 0.56 * wl + 30 : 10, R0 = wr ? f * 0.56 * wr + 30 : 10;
-      M.svg.setAttribute('viewBox', ((m.x0 || 0) - L0).toFixed(1) + ' ' + ((m.y0 || 0) - 10) + ' ' + (m.w + L0 + R0).toFixed(1) + ' ' + (m.h + 20));
-      M.font = f;
+      var s = sizes(W0);
+      for (var W = W1; W > W0; W--) { var t = sizes(W); if (t.roomy) { s = t; break; } }
+      M.wrap = s.W;
+      /* words in the margins would leave the picture under 60 % of the width (a wide micrograph, or a photograph on a
+         phone): numbered pins in narrow margins and a key under the picture instead (8 Oct 2026 review: the electron
+         micrograph was a strip a third of the stage wide; on a phone, 110 px) */
+      var pLab = Math.min(r.width / (m.w + s.L + s.R), r.height / (m.h + 20 + headU(m, s.f)));
+      /* on a phone pins whenever they make the picture clearly larger; on a wide screen only for a very wide picture,
+         because words beside the parts teach the names best */
+      var narrow = r.width < 520, share = m.w * pLab / r.width;
+      if ((narrow ? share < 0.75 : (share < 0.6 && m.w / m.h > 1.8)) && fitPins(M, r, keys, pLab, narrow ? 1.2 : 1.3)) return;
+      M.pins = null;
+      var hu = headU(m, s.f);
+      M.svg.setAttribute('viewBox', ((m.x0 || 0) - s.L).toFixed(1) + ' ' + ((m.y0 || 0) - 10 - hu).toFixed(1) + ' ' + (m.w + s.L + s.R).toFixed(1) + ' ' + (m.h + 20 + hu).toFixed(1));
+      M.font = s.f;
     }
-    function sideOf(M, p) { var pt = M.spec.pts[p]; return pt[2] || (pt[0] < (M.spec.x0 || 0) + M.spec.w / 2 ? 'L' : 'R'); }
+    function headU(m, f) { return (m.heads || []).some(function (hd) { return hd.y == null; }) ? f * 1.7 : 0; }   /* room above, for headings above the picture */
+    /* the pins' key goes beside the picture or under it (one or two columns), whichever leaves the picture larger;
+       a long name wraps ("capsule" / "(beyond 0610)"). Everything is about 13 px on screen. */
+    function wrapWords(text, n) {
+      var out = [], cur = '';
+      String(text).split(' ').forEach(function (wd) { var tr = cur ? cur + ' ' + wd : wd; if (tr.length > n && cur) { out.push(cur); cur = wd; } else cur = tr; });
+      if (cur) out.push(cur);
+      return out;
+    }
+    function fitPins(M, r, keys, pLab, gain) {
+      var m = M.cur, PX = 13, lh = PX * 1.3, gap = PX * 0.35;
+      var nl = keys.filter(function (p) { return sideOf(M, p) === 'L'; }).length, nr = keys.length - nl;
+      var KW = keys.reduce(function (n, p) { return Math.max(n, labelOf(m, p).split(' ').reduce(function (k, w) { return Math.max(k, w.length); }, 0)); }, 12);
+      var lines = keys.map(function (p) { return wrapWords(labelOf(m, p), KW); });
+      var itemW = PX * (1.64 + 0.56 * lines.reduce(function (n, ls) { return Math.max(n, ls.reduce(function (k, l) { return Math.max(k, l.length); }, 0)); }, 0));
+      function colH(ls) { return ls.reduce(function (h, x, i) { return h + x.length * lh + (i ? gap : 0); }, 0); }
+      var sidesPx = (nl ? 18.7 : 0) + (nr ? 18.7 : 0), sidesU = (nl ? 16 : 10) + (nr ? 16 : 10);
+      var best = null, hB = colH(lines);
+      if (hB <= r.height - 10) {
+        var pb = Math.min((r.width - sidesPx - itemW - PX) / (m.w + sidesU), (r.height - (m.heads ? PX * 1.7 : 0)) / (m.h + 20));
+        if (pb > 0) best = { p: pb, where: 'beside', cols: 1, h: hB };
+      }
+      [1, 2].forEach(function (cols) {
+        if (cols * itemW > r.width) return;
+        /* the key is drawn in pin order, not in this order: size it for the tallest names sharing one column */
+        var per = Math.ceil(lines.length / cols);
+        var hh = colH(lines.slice().sort(function (x, y) { return y.length - x.length; }).slice(0, per));
+        var pp = Math.min((r.width - sidesPx) / (m.w + sidesU), (r.height - hh - PX - (m.heads ? PX * 1.7 : 0)) / (m.h + 20));
+        if (pp > 0 && (!best || pp > best.p)) best = { p: pp, where: 'below', cols: cols, h: hh };
+      });
+      if (!best || best.p < pLab * gain) return false;   /* words beside the parts teach the names best: pins only when they make the picture far larger */
+      var f = PX / best.p, colL = nl ? 16 + 1.44 * f : 10, colR = nr ? 16 + 1.44 * f : 10, x0 = m.x0 || 0, y0 = m.y0 || 0;
+      var hu = headU(m, f), vw = m.w + colL + colR, vh = m.h + 20 + hu;
+      if (best.where === 'beside') vw += (itemW + PX) / best.p; else vh += (best.h + PX) / best.p;
+      M.pins = { f: f, colL: colL, colR: colR, where: best.where, cols: best.cols, lines: lines, keys: keys, hU: best.h / best.p, vw: vw };
+      M.font = f;
+      M.svg.setAttribute('viewBox', (x0 - colL).toFixed(1) + ' ' + (y0 - 10 - hu).toFixed(1) + ' ' + vw.toFixed(1) + ' ' + vh.toFixed(1));
+      return true;
+    }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    /* the pins' key: each name after its number; a name opens its card too */
+    function pinKey(M, order) {
+      var m = M.cur, P = M.pins, f = P.f, x0 = m.x0 || 0, y0 = m.y0 || 0, out = '', rr = f * 0.62, lh = f * 1.3, gap = f * 0.35;
+      var linesOf = {}; P.keys.forEach(function (k, i) { linesOf[k] = P.lines[i]; });
+      var per = Math.ceil(order.length / P.cols), colW = (m.w + P.colL + P.colR) / P.cols;
+      var bx0 = P.where === 'beside' ? x0 + m.w + P.colR + f * 0.5 : x0 - P.colL + f * 0.5;
+      var by0 = P.where === 'beside' ? y0 + Math.max(0, (m.h - P.hU) / 2) : y0 + m.h + 10 + f * 0.6;
+      var yAt = [by0];
+      order.forEach(function (it, i) {
+        var c = Math.floor(i / per), k = i % per, ls = linesOf[it.id] || [it.text];
+        if (k === 0) yAt[c] = by0;
+        var bx = bx0 + c * colW, top = yAt[c], cy = top + lh / 2;
+        yAt[c] = top + ls.length * lh + gap;
+        out += '<g class="lb lb--key ' + (it.cls || '') + '" data-lab="' + it.id + '">' +
+          '<circle class="lb__pin" cx="' + (bx + rr).toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + rr.toFixed(1) + '"/>' +
+          '<text class="lb__pinn" x="' + (bx + rr).toFixed(1) + '" y="' + (cy + f * 0.28).toFixed(1) + '" text-anchor="middle" style="font-size:' + (f * 0.78).toFixed(1) + 'px">' + it.n + '</text>' +
+          '<text class="lb__txt" style="font-size:' + f.toFixed(1) + 'px">' + ls.map(function (l, j) {
+            return '<tspan x="' + (bx + 2 * rr + f * 0.45).toFixed(1) + '" y="' + (cy + f * 0.35 + j * lh).toFixed(1) + '">' + esc(l) + '</tspan>'; }).join('') + '</text></g>';
+      });
+      return out;
+    }
+    function sideOf(M, p) { var m = M.cur, pt = m.pts[p]; return pt[2] || (pt[0] < (m.x0 || 0) + m.w / 2 ? 'L' : 'R'); }
     function draw(M) {
       fit(M);
-      var m = M.spec, f = M.font || 40;
+      var m = M.cur, f = M.font || 40;
       var items = Object.keys(m.pts).map(function (p) {
-        return { id: p, text: (m.names && m.names[p]) || NAMES[p] || p, x: m.pts[p][0], y: m.pts[p][1], side: sideOf(M, p), cls: lit === p ? 'is-lit' : (lit ? 'is-dim' : '') };
+        return { id: p, text: labelOf(m, p), x: m.pts[p][0], y: m.pts[p][1], side: sideOf(M, p), cls: lit === p ? 'is-lit' : (lit ? 'is-dim' : '') };
       });
-      var opt = { left: (m.x0 || 0) - 8, right: (m.x0 || 0) + m.w + 8, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.3, width: f * 0.56 * (M.wrap || 15) };
-      M.labG.innerHTML = global.CircLearn.labels(Object.assign({}, opt, { items: items }));
+      if (M.pins) {
+        var pl = global.CircLearn.pinLabels({ items: items, left: (m.x0 || 0) - 4, right: (m.x0 || 0) + m.w + 4, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.25 });
+        var idOf = {}; items.forEach(function (i) { idOf[i.text] = i.id; });
+        M.labG.innerHTML = pl.svg + pinKey(M, pl.order.map(function (o) { return { n: o.n, text: o.text, cls: o.cls, id: idOf[o.text] }; }));
+      } else {
+        var opt = { left: (m.x0 || 0) - 8, right: (m.x0 || 0) + m.w + 8, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.3, width: f * 0.56 * (M.wrap || 15) };
+        M.labG.innerHTML = global.CircLearn.labels(Object.assign({}, opt, { items: items }));
+      }
+      if (m.heads) M.labG.innerHTML += m.heads.map(function (hd) {
+        var hy = hd.y != null ? hd.y : (m.y0 || 0) - f * 0.55;
+        return '<text class="cellv__head" x="' + hd.x + '" y="' + (+hy).toFixed(1) + '" text-anchor="middle" style="font-size:' + f.toFixed(1) + 'px">' + esc(hd.t) + '</text>';
+      }).join('');
       Array.prototype.forEach.call(M.labG.querySelectorAll('.lb'), function (g) {
         var k = g.getAttribute('data-lab');
         g.setAttribute('role', 'button'); g.setAttribute('tabindex', '0');
@@ -132,9 +254,12 @@
   /* the three drawings, for a question's hotspot ('cell#animal', 'cell#plant', 'cell#bacterium'): the whole drawing,
      so a region's x and y are percentages of its own viewBox */
   var DRAWN = { animal: [730.39, 560.42], plant: [778.05, 573.36], bacterium: [702.64, 622.77] };
+  /* cropped to the cell itself (8 Oct 2026: the whole canvas left an empty strip where the original's labels were);
+     a question's region x and y are percentages of THIS box */
+  var CROP = { animal: [245, 10, 470, 535], plant: [360, 15, 400, 545], bacterium: [325, 20, 360, 580] };
   global.CircLearn.diagram('cell', function (v) {
-    var d = DRAWN[v]; if (!d) return '';
-    return '<svg viewBox="0 0 ' + d[0] + ' ' + d[1] + '" role="img" aria-label="A drawing of ' + (v === 'animal' ? 'an animal cell' : v === 'plant' ? 'a plant cell' : 'a bacterium') + '">' +
+    var d = DRAWN[v], c = CROP[v]; if (!d) return '';
+    return '<svg class="hs__fig" viewBox="' + c.join(' ') + '" role="img" aria-label="A drawing of ' + (v === 'animal' ? 'an animal cell' : v === 'plant' ? 'a plant cell' : 'a bacterium') + '">' +
       '<image href="assets/photos/cell-' + v + '.svg" x="0" y="0" width="' + d[0] + '" height="' + d[1] + '"/></svg>';
   });
 })(window);

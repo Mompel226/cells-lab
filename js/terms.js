@@ -31,26 +31,37 @@
   var PLAIN_WORDS = {
     cell:  ['cell wall', 'cell walls', 'cell membrane', 'cell membranes', 'nucleus', 'nuclei', 'cytoplasm', 'chloroplast', 'chloroplasts',
             'ribosome', 'ribosomes', 'mitochondrion', 'mitochondria', 'vacuole', 'vacuoles', 'cell sap', 'circular DNA', 'plasmid', 'plasmids',
-            'cellulose', 'partially permeable', 'plant cell', 'plant cells', 'animal cell', 'animal cells', 'bacterial cell', 'bacterial cells'],
+            'cellulose', 'partially permeable', 'plant cell', 'plant cells', 'animal cell', 'animal cells', 'bacterial cell', 'bacterial cells',
+            'chromosome', 'chromosomes', 'gene', 'genes', 'flagellum', 'flagella', 'capsule'],
     size:  ['light microscope', 'light microscopes', 'microscope', 'microscopes', 'electron microscope', 'eyepiece', 'eyepiece lens', 'objective lens', 'objective lenses',
             'nosepiece', 'stage', 'condenser', 'focusing knob', 'focusing knobs', 'magnification', 'magnifications', 'total magnification',
             'image size', 'actual size', 'millimetre', 'millimetres', 'micrometre', 'micrometres', 'photomicrograph', 'photomicrographs',
-            'eyepiece graticule', 'graticule', 'significant figures', 'slide', 'coverslip', 'stain', 'methylene blue', 'scale bar'],
+            'eyepiece graticule', 'graticule', 'significant figures', 'slide', 'coverslip', 'stain', 'methylene blue', 'scale bar', 'specimen', 'specimens'],
     org:   ['tissue', 'tissues', 'organ', 'organs', 'organ system', 'organ systems', 'organism', 'organisms', 'specialised cell', 'specialised cells',
             'ciliated cell', 'ciliated cells', 'cilia', 'root hair cell', 'root hair cells', 'palisade mesophyll', 'palisade cell', 'palisade cells',
-            'neurone', 'neurones', 'red blood cell', 'red blood cells', 'sperm cell', 'sperm cells', 'egg cell', 'egg cells', 'gamete', 'gametes'],
+            'neurone', 'neurones', 'red blood cell', 'red blood cells', 'sperm cell', 'sperm cells', 'egg cell', 'egg cells', 'gamete', 'gametes',
+            'uterus', 'cervix', 'ovary', 'ovaries', 'oviduct', 'oviducts', 'vagina', 'muscle tissue', 'connective tissue',
+            'trachea', 'bronchus', 'bronchi', 'electrical impulse', 'electrical impulses', 'epidermis', 'xylem', 'phloem'],
     plain: ['diffusion', 'osmosis', 'respiration', 'aerobic respiration', 'protein', 'proteins', 'protein synthesis', 'photosynthesis', 'DNA',
-            'enzyme', 'enzymes', 'chlorophyll', 'glucose', 'oxygen', 'carbon dioxide', 'mucus', 'bacterium', 'bacteria', 'resolution']
+            'enzyme', 'enzymes', 'chlorophyll', 'glucose', 'oxygen', 'carbon dioxide', 'mucus', 'bacterium', 'bacteria', 'resolution',
+            'plasmolysis', 'turgid']
   };
 
   /* --------- what happens when you click a term ---------
      peek : a small picture appears where you clicked — for a thing you need to SEE
      jump : go to the station where the word is properly explained
-     Each station's own left picture shows its parts, so no word here opens a picture of its own yet. */
+     Each station's own left picture shows its parts. A word opens a picture only where that picture is NOT in front
+     of the reader and seeing it settles a likely confusion (Daniel, 8 Oct 2026: "a logic, not everything highlighted"). */
   var PEEK = {};
 
   /* the same word, different station: a picture that is right in one place can be wrong in another */
-  var CONTEXT = {};
+  var BERK = 'Berkshire Community College Bioscience Image Library, CC0', HAGG = 'Mikael Häggström, Wikimedia Commons, CC0';
+  var CONTEXT = {
+    /* the Organ card names the tissues of the uterus; the connective tissue is real under the lining of the cervix */
+    levels: { 'connective tissue': ['connective-tissue-900.jpg', '<b>Connective tissue</b> under the lining of the cervix: a few scattered cells (their dark nuclei) among pale pink fibres. It supports the tissues round it and holds them together.', HAGG] },
+    /* a root hair cell, named in the plant station before its own station: seeing it in the soil answers "why no chloroplasts?" */
+    plant: { 'root hair cell': ['root-hair-900.jpg', 'A <b>root hair cell</b> on the outside of a root: its long, thin root hair grows into the soil, where there is no light. The cell has no chloroplasts.', BERK] }
+  };
 
   /* statistics words that open a worked explanation when clicked (the Plants Lab has them): none in this lab */
   var STAT = {};
@@ -62,8 +73,9 @@
   var JUMP = {};
   function jump(list, st) { if (BUILT[st]) list.forEach(function (w) { JUMP[w] = st; }); }
   jump(['tissue', 'tissues', 'organ', 'organs', 'organ system', 'organ systems', 'organism', 'organisms'], 'levels');
+  /* slide, coverslip and stain are not here: they are explained by their definitions, where they are first used (8 Oct 2026) */
   jump(['light microscope', 'light microscopes', 'eyepiece', 'eyepiece lens', 'objective lens', 'objective lenses', 'nosepiece', 'condenser',
-        'focusing knob', 'focusing knobs', 'total magnification', 'slide', 'coverslip', 'methylene blue'], 'microscope');
+        'focusing knob', 'focusing knobs', 'total magnification'], 'microscope');
   jump(['magnification', 'magnifications', 'image size', 'actual size'], 'magnification');
   jump(['millimetre', 'millimetres', 'micrometre', 'micrometres'], 'units');
   jump(['specialised cell', 'specialised cells', 'ciliated cell', 'ciliated cells', 'cilia', 'root hair cell', 'root hair cells', 'palisade cell', 'palisade cells',
@@ -210,7 +222,7 @@
   }
 
   function legend() {
-    var out = '<p class="legend__intro">Each ink is one strand of the topic.</p><div class="legend">';
+    var out = '<p class="legend__intro">Each colour is one part of the topic.</p><div class="legend">';
     ['cell', 'size', 'org'].forEach(function (c) {
       out += '<span class="legend__i"><b class="t t--' + c + '">' + CATS[c].label + '</b></span>';
     });

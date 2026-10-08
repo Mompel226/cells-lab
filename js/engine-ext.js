@@ -66,6 +66,7 @@
     var stage = h('div', 'hs__stage');
     if (a.svg) {
       stage.innerHTML = global.Learn ? global.Learn.svgFor(a.svg) : '';
+      if (stage.querySelector('svg.hs__fig')) stage.classList.add('hs__stage--fig');   /* a cell drawing: narrow, centred */
     } else if (a.img) {
       /* .hs__stage is position:relative and every clickable region is placed at left:x%,
          top:y%, so until the photograph lands the stage has no height and the regions pile
@@ -83,7 +84,7 @@
     var count = h('p', 'hs__count');
     function paintCount() {
       var n = Object.keys(picked).length;
-      count.innerHTML = '<b>' + n + '</b> of ' + a.need + ' chosen — click a feature to choose it, click again to let it go.';
+      count.innerHTML = '<b>' + n + '</b> of ' + a.need + ' chosen. Press a part to choose it; press it again to remove your choice.';
     }
     (a.regions || []).forEach(function (r) {
       var b = h('button', 'hs__pt'); b.type = 'button';
@@ -104,6 +105,8 @@
     if (a.credit) { var cr = h('p', 'act__credit'); cr.innerHTML = a.credit; card.appendChild(cr); }
     card.appendChild(count); paintCount();
 
+    /* its own wrong-answer words: a hotspot colours none of the features chosen (the right ones stay hidden), so the
+       engine's "look again at the ones marked in red" would point at nothing (answers audit 3, 8 Oct 2026) */
     U.foot(card, function () {
       var sel = Object.keys(picked);
       if (!sel.length) return null;
@@ -112,7 +115,7 @@
       picked = {};
       Array.prototype.forEach.call(stage.querySelectorAll('.hs__pt'), function (b) { b.setAttribute('aria-pressed', 'false'); b.dataset.locked = ''; });
       paintCount();
-    });
+    }, 'Not right yet. Check each feature you chose, and how many the question asks for, then try once more.');
     return card;
   }
 

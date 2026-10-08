@@ -718,9 +718,32 @@
       });
       line.appendChild(again);
     }
+    /* Redo the ones you missed (Daniel, 8 Oct 2026): this round's questions answered right, but not at the first try, again
+       as practice (Engine.redo): nothing a redo does is recorded or sent */
+    var miss = missedNow(st);
+    if (miss.length && window.Engine && window.Engine.redo) {
+      var rd = document.createElement('button');
+      rd.type = 'button'; rd.className = 'btn btn--quiet'; rd.textContent = 'Redo the ' + miss.length + ' you missed';
+      rd.addEventListener('click', function () { redoOf = { id: st.id, list: missedNow(st), who: redoWho(), go: stationScore(st.id).go }; paintPanel(); });
+      line.appendChild(rd);
+    }
     pane.appendChild(line);
   }
+  var redoOf = null;          /* the redo on screen: { id, list, who, go } of one station, or null */
+  function redoWho() { return signIn && signIn.email ? String(signIn.email).toLowerCase() : ''; }
+  function missedNow(st) {
+    var rec = progress[st.id] || {}, out = [];
+    (st.activities || []).forEach(function (a, i) { if (rec.done && rec.done[i] && !(rec.one && rec.one[i])) out.push(i); });
+    return out;
+  }
   function paintDo(pane, st) {
+    /* a redo belongs to one station, one pupil and one round: another station, another account (or none), Reset or a new
+       round ends it (the audit, 8 Oct 2026: pupil B saw pupil A's missed question) */
+    if (redoOf && (redoOf.id !== st.id || redoOf.who !== redoWho() || redoOf.go !== stationScore(st.id).go)) redoOf = null;
+    if (redoOf && window.Engine && window.Engine.redo) {
+      window.Engine.redo(pane, st, redoOf.list, function () { redoOf = null; paintPanel(); });
+      return;
+    }
     paintGoLine(pane, st);
     (st.activities || []).forEach(function (a, i) {
       var card = window.Engine.render(a, i, st.id + ':' + i);
@@ -766,6 +789,7 @@
     if (i < ORDER.length - 1) {
       var next = document.createElement('button');
       next.className = 'btn'; next.textContent = 'Next: ' + S[ORDER[i + 1]].name + ' →';
+      if (i === 0) next.style.marginLeft = 'auto';   /* "Next" stays on the right on the first station too */
       next.addEventListener('click', function () { open(ORDER[i + 1]); });
       nav.appendChild(next);
     }
@@ -1182,6 +1206,8 @@
         var mine = j && j.ok && j.labs && j.labs[LAB_ID]; applySnap(mine, true);
         /* and their homework here, which the same answer carries (a script from before sends none) */
         if (window.LabHomework) window.LabHomework.take(j && j.ok ? j.homework : null, signIn && signIn.email);
+        /* the teacher's accommodation for this pupil (8 Oct 2026): help after a second wrong try (engine.js LabHelp) */
+        if (window.LabHelp) window.LabHelp.set(!!(j && j.ok && j.acc), signIn && signIn.email);
       })
       .catch(function () {})
       .then(function () { if (then && still()) then(); });
@@ -1318,6 +1344,11 @@
     else if (savePending) { cls += ' is-busy'; text = 'Saving…'; tip = 'Sent to Dr Mompel’s records within two minutes, and at once when you finish or leave.'; }
     else if (savedAt) { cls += ' is-ok'; text = 'Saved ✓ ' + hhmm(savedAt); tip = 'In Dr Mompel’s records. Every check is sent on its own — there is nothing to hand in.'; }
     else { cls += ' is-ok'; text = 'Saves as you go'; tip = 'Signed in: every check is sent to Dr Mompel’s records on its own — there is nothing to hand in.'; }
+    /* a phone: the shorter words, so the header's buttons fit on one row under the name (8 Oct 2026) */
+    if (window.matchMedia && window.matchMedia('(max-width: 540px)').matches) {
+      var SHORT = { 'Sign in to save': 'Sign in', 'Saves as you go': 'Saving on', 'Offline · will retry': 'Offline', 'Not on the class list': 'Not on list', 'Not being collected': 'Not collected' };
+      if (SHORT[text]) text = SHORT[text];
+    }
     b.className = cls; b.textContent = text; b.setAttribute('data-tip', tip);
   }
   function openSaveDialog() {
@@ -1413,17 +1444,32 @@
     host.appendChild(pk);
     var sheet = window.innerWidth < 600;
     if (sheet) pk.className += ' peek--sheet';
+    /* the room is the part of the panel the reader can see: below the header and the Learn/Practise tabs, above the
+       station rail (8 Oct 2026: measured against the whole window, a tall picture opened under the tabs, cut off) */
+    function visibleBand() {
+      var sc = panelScroller(), vr = sc ? sc.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+      var tabsEl = document.querySelector('#panelInner .tabs'), tb = tabsEl ? tabsEl.getBoundingClientRect() : null;
+      var top = Math.max(0, vr.top, tb && tb.bottom > vr.top && tb.top < vr.top + 140 ? tb.bottom : 0);
+      var rail = document.querySelector('.rail'), rr = rail ? rail.getBoundingClientRect() : null;
+      var bottom = Math.min(window.innerHeight, vr.bottom, rr && rr.top > top + 100 ? rr.top : window.innerHeight);
+      return { top: top, bottom: bottom };
+    }
     function place() {
-      var hr = host.getBoundingClientRect(), r = el.getBoundingClientRect();
+      var hr = host.getBoundingClientRect(), r = el.getBoundingClientRect(), band = visibleBand();
       var w = pk.offsetWidth, hh = pk.offsetHeight, pad = 8, gap = 8;
       var left = Math.min(Math.max(pad, (r.left - hr.left) + r.width / 2 - w / 2), host.clientWidth - w - pad);
-      var below = window.innerHeight - r.bottom - gap - pad, above = r.top - gap - pad, room = Math.max(above, below), top;
-      if (hh > room) { pk.style.maxHeight = room + 'px'; pk.style.overflowY = 'auto'; hh = pk.offsetHeight; }
+      var below = band.bottom - r.bottom - gap - pad, above = r.top - gap - pad - band.top, room = Math.max(above, below), top;
+      /* short of room, the picture gives way first, so the words under it are never cut off */
+      var pim = pk.querySelector('img');
+      if (pim) pim.style.maxHeight = '';
+      hh = pk.offsetHeight;
+      if (hh > room && pim) { var ih = pim.getBoundingClientRect().height; pim.style.maxHeight = Math.max(110, ih - (hh - room)) + 'px'; hh = pk.offsetHeight; }
+      if (hh > room) { pk.style.maxHeight = Math.max(160, room) + 'px'; pk.style.overflowY = 'auto'; hh = pk.offsetHeight; }
       else { pk.style.maxHeight = ''; pk.style.overflowY = ''; }
-      if (below >= hh) top = (r.bottom - hr.top) + gap; else top = (r.top - hr.top) - hh - gap;
+      if (below >= hh || below >= above) top = (r.bottom - hr.top) + gap; else top = (r.top - hr.top) - hh - gap;
       var vTop = hr.top + top;
-      if (vTop + hh > window.innerHeight - pad) { top -= (vTop + hh) - (window.innerHeight - pad); vTop = hr.top + top; }
-      if (vTop < pad) top += pad - vTop;
+      if (vTop + hh > band.bottom - pad) { top -= (vTop + hh) - (band.bottom - pad); vTop = hr.top + top; }
+      if (vTop < band.top + pad) top += band.top + pad - vTop;
       pk.style.left = left + 'px'; pk.style.top = top + 'px';
     }
     if (!sheet) place();
@@ -1530,6 +1576,17 @@
     Array.prototype.forEach.call(document.querySelectorAll('.tip.is-open'), function (el) { if (el !== tip) el.classList.remove('is-open'); });
     if (tip) { e.preventDefault(); tip.classList.toggle('is-open'); }
   });
+  /* a tooltip opens towards the side with room: one that would run past the right edge of the window opens to the left
+     (8 Oct 2026: the keyword badges' tooltips ran off the right of the panel) */
+  function tipSide(e) {
+    var tip = e.target && e.target.closest ? e.target.closest('.tip') : null;
+    if (!tip || tip.classList.contains('hbtn')) return;
+    var r = tip.getBoundingClientRect();
+    tip.classList.toggle('tip--right', r.left + Math.min(300, window.innerWidth * 0.72) > window.innerWidth - 12);
+  }
+  document.addEventListener('mouseover', tipSide);
+  document.addEventListener('focusin', tipSide);
+  document.addEventListener('pointerdown', tipSide, true);
 
   /* ---------- credits: every picture and video the stations name ---------- */
   function paintCredits() {

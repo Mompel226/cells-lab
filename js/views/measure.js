@@ -34,7 +34,7 @@
     var lab = el('text', { x: (L[0] + L[2]) / 2, y: L[1] - 14, class: 'meas__lab', 'text-anchor': 'middle' }, svg); lab.textContent = spec.mm + ' mm';
     var dots = el('g', {}, svg);
     var row = h('div', 'vbar meas__bar');
-    var undo = h('button', 'vbtn', '↶ Take back the last one'); undo.type = 'button';
+    var undo = h('button', 'vbtn', 'Undo the last one'); undo.type = 'button';
     var again = h('button', 'vbtn', '↺ Count again'); again.type = 'button';
     row.appendChild(undo); row.appendChild(again);
     var work = h('div', 'meas__work'); work.setAttribute('aria-live', 'polite');
@@ -60,7 +60,7 @@
       });
       var n = marks.length;
       undo.disabled = again.disabled = !n;
-      if (!n) { work.innerHTML = '<p>Press each cell the line crosses: each one has one nucleus (the dark shape). Count along the whole line.</p>'; return; }
+      if (!n) { work.innerHTML = '<p><b>0</b> cells counted so far.</p><p>Press each cell the line crosses: each one has one nucleus (the dark shape). Count along the whole line.</p>'; return; }
       var mm = spec.mm / n, um = mm * 1000;
       work.innerHTML = '<p><b>' + n + '</b> cell' + (n === 1 ? '' : 's') + ' across ' + spec.mm + ' mm</p>' +
         '<p class="meas__eq">size of one cell = length of the line ÷ number of cells<br>= ' + spec.mm + ' mm ÷ ' + n + ' = <b>' + sig(mm, 2) + ' mm</b> = <b>' + sig(um, 2) + ' µm</b></p>' +
