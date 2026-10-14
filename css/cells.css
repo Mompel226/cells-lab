@@ -37,6 +37,9 @@
 .hbtn--save.is-no{background:var(--bad-tint);color:var(--bad);border-color:var(--bad)}
 .hbtn--save.is-no:hover{background:var(--bad-tint)}
 .hbtn--save.is-off{background:transparent;color:var(--hdr-ink);border-style:dashed}
+/* the way back (14 Oct 2026, Daniel: pupils missed it): a solid pill in the lab's green, first in the header; the header's own white (dark at night) as its words */
+.hbtn--back{background:var(--accent);border-color:var(--accent);color:var(--hdr-bg);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.hbtn--back:hover,.hbtn--back:focus-visible{background:var(--accent-2);border-color:var(--accent-2);color:var(--hdr-bg)}
 #btnTheme{white-space:nowrap}
 
 /* the station's heading: a cell in the accent, its nucleus in the Foundations violet */
