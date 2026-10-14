@@ -1755,6 +1755,13 @@ picture{display:block;line-height:0}
    which only ever showed as "Top…" here, goes, and the byline steps under the name when the row is full, as it does on a tablet (14 Oct 2026) */
 @media (max-width:1440px){ .hbtn--back .hbtn__long{display:none} .hbtn--back .hbtn__short{display:inline} .hdr__sub{display:none} .hdr__mark{flex-wrap:wrap;row-gap:0} .hdr__title{line-height:1.1} .hdr__by{line-height:1.15} }
 @media (min-width:821px){ .hdr__title{flex-shrink:0} }
+/* the way back's short words are the pill's own size, not the 15 px of the icon-like short labels (A–Z, ?); on a phone a long name
+   (Classification Lab) goes onto two lines rather than being cut (14 Oct 2026) */
+.hbtn--back .hbtn__short{font-size:inherit;font-weight:inherit}
+@media (max-width:820px){ .hbtn--back + .hdr__mark .hdr__title{white-space:normal;flex:0 1 auto;min-width:0} }
+/* a small phone (370 px or less: 360 and 320): the way back and the name have the first row to themselves, so the name and the byline are
+   never cut; the IGCSE 0610 badge wraps to start the second row, beside the counts (14 Oct 2026) */
+@media (max-width:370px){ .hbtn--back + .hdr__mark{flex:1 1 calc(100% - 140px)} .hdr__stats{flex:1 1 0;min-width:0} .hbtn--back ~ .badge{align-self:flex-start;margin-top:8px} }
 
 /* a tablet held flat (1024px) and every narrower screen:no subtitle, and a smaller name up to 1000px, so the name is never cut short */
 @media (max-width:1100px){ .hdr__sub{display:none} }
