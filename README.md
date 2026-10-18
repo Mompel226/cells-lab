@@ -57,7 +57,8 @@ The **← Foundations** button goes back up.
 **Real pictures.** Every photograph is a real specimen: micrographs from the Berkshire Community College Bioscience
 Image Library, Mikael Häggström, the NIAID and Dartmouth College, the HeLa cell from Janelia's OpenOrganelle, and the
 woman's body from the HuBMAP Human Reference Atlas. The three cell drawings are domdomegg's (CC BY 4.0), with the
-ribosomes added. Every label is placed on its part from the picture itself, and the label lines never cross.
+ribosomes added. Every label is placed on its part from the picture itself; each label line is one straight, level
+line on every screen, from a small phone to a wide monitor, and no two lines cross.
 
 **Why the right answers are not in the page.** Each question carries a *scrambled fingerprint* of
 its answer. When a student answers, the page scrambles what they did in the same way and compares

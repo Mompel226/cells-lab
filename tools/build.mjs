@@ -188,6 +188,30 @@ function scramble(arr, seed) {
   return a.join('|') === arr.join('|') && a.length > 1 ? scramble(arr, seed + '.') : a;
 }
 
+/* ---------- label points: where a label line may also end ON its part ----------
+   ../cells-lab-source/label-points.json is written by `node label-points.mjs` there, from the three drawings themselves
+   (Daniel's rule: one level line per label, ending on its part; memory label-lines-never-cross). js/w-common.js keeps
+   each label at its first point (`pts`) whenever the names fit, and otherwise moves it to the nearest of these points,
+   so its line stays level on a phone instead of bending (18 Oct 2026). Stale points would end a line beside its part,
+   so the build refuses a drawing, a crop or a first point changed since they were found. */
+const LP_FILE = resolve(REPO, '../cells-lab-source/label-points.json');
+const LP = existsSync(LP_FILE) ? JSON.parse(readFileSync(LP_FILE, 'utf8')) : {};
+let nLP = 0;
+function withPoints(sid, m) {
+  if (!m.svg || !m.pts) return m;
+  const lp = LP[sid + '/' + m.id], box = [m.x0 || 0, m.y0 || 0, m.w, m.h];
+  const why = !lp ? 'none found yet'
+    : lp.hash !== createHash('sha256').update(readFileSync(resolve(REPO, 'assets/photos', m.svg))).digest('hex').slice(0, 16) ? 'the drawing changed'
+    : JSON.stringify(lp.box) !== JSON.stringify(box) ? 'its crop changed'
+    : JSON.stringify(lp.first) !== JSON.stringify(m.pts) ? 'its first points changed' : '';
+  if (why) { console.error(`label points for ${sid}/${m.id}: ${why}. Run: node label-points.mjs (in labs/cells-lab-source), then build again.`); process.exit(1); }
+  nLP++;
+  /* `fix`: a first point on a small part (a ribosome, a mitochondrion), moved to its edge on the same row */
+  const pts = { ...m.pts };
+  for (const [p, xy] of Object.entries(lp.fix || {})) pts[p] = [xy[0], xy[1], ...m.pts[p].slice(2)];
+  return { ...m, pts, alts: { ...(m.alts || {}), ...lp.pts }, off: lp.off };
+}
+
 /* ---------- transform ---------- */
 const vault = {};
 const pub = [];
@@ -197,6 +221,7 @@ const SHOW = ['table', 'img', 'imgCap', 'svg', 'credit'];
 
 for (const st of STATIONS) {
   const s = { ...st, activities: [] };
+  if (st.view && st.view.modes) s.view = { ...st.view, modes: st.view.modes.map(m => withPoints(st.id, m)) };
   for (let i = 0; i < (st.activities || []).length; i++) {
     const a = st.activities[i], id = st.id + ':' + i, t = a.type;
     const p = { type: t, prompt: a.prompt };
@@ -481,6 +506,7 @@ console.log(`built ${pub.length} stations, ${nAct} activities`);
 console.log(`  js/data/stations.js   presentation + hashes (no answers)`);
 console.log(`  js/data/glossary.js   ${GLOSSARY.length} shared definitions`);
 console.log(`  js/data/photos.js     ${Object.keys(SIZES).length} picture sizes`);
+console.log(`  label points          ${nLP} drawings, in step with ../cells-lab-source/label-points.json`);
 console.log(`  shared engine, marking, sync, sign-in, syllabus and widgets copied in`);
 console.log(`  index.html + version.txt  stamped ${STAMP} (${nStamp} assets)`);
 

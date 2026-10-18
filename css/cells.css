@@ -84,7 +84,9 @@
 .lb__dot{display:none}
 /* label lines one steady width on screen, however far a picture is scaled to fit (8 Oct 2026) */
 svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
-.lb__halo{stroke:var(--col-bg)}
+/* the pale band under a label line stops where the line stops: with a round end it covered a ribosome or a
+   mitochondrion the line touched (18 Oct 2026) */
+.lb__halo{stroke:var(--col-bg);stroke-linecap:butt}
 .lb__lead{stroke:var(--col-ink)}
 .lb__txt{fill:var(--col-ink);stroke:var(--col-bg)}
 .lb{cursor:pointer}

@@ -23,14 +23,20 @@
   var W = 900, H = 1363;                       /* the photograph, as published in assets/photos */
 
   /* Each part: where the leader ends ON it, the lit area (an ellipse), and the margin its name goes in.
-     Placed on the 900 px photograph by eye and checked on the rendered page (tools: _scope.html). */
+     Placed on the 900 px photograph by eye and checked on the rendered page (tools: _scope.html).
+     `alts`: other points on the same part, where its name stands when the names would crowd (a phone, a tablet), so
+     every leader stays one level line (18 Oct 2026; memory label-lines-never-cross). Each was checked on the photograph
+     zoomed ×3: the nosepiece's knurled ring, the right-hand objective lens, the stage's front edge, the condenser's
+     body (never its lever) and the blue lens at its foot, the lamp's housing. `opt`: on a phone too narrow for every
+     name (320 px), the nosepiece and the condenser, the parts a pupil needs least to use a microscope, give way first. */
   var PARTS = {
     eyepiece:  { name: 'eyepiece lens',  at: [772, 108], ell: [700, 112, 122, 86],  side: 'R' },
-    nosepiece: { name: 'nosepiece',      at: [600, 418], ell: [516, 414, 124, 36],  side: 'R' },
-    objective: { name: 'objective lens', at: [650, 534], ell: [565, 518, 126, 66],  side: 'R' },
-    stage:     { name: 'stage',          at: [728, 655], ell: [420, 645, 306, 66],  side: 'R' },
-    condenser: { name: 'condenser',      at: [548, 752], ell: [494, 760, 92, 60],   side: 'R' },
-    lamp:      { name: 'lamp',           at: [556, 972], ell: [482, 974, 96, 96],   side: 'R' },
+    nosepiece: { name: 'nosepiece',      at: [600, 418], ell: [516, 414, 124, 36],  side: 'R', alts: [[628, 400], [630, 412], [628, 426]], opt: 1 },
+    objective: { name: 'objective lens', at: [650, 534], ell: [565, 518, 126, 66],  side: 'R',
+                 alts: [[628, 470], [645, 486], [655, 502], [660, 518], [662, 548], [655, 562]] },
+    stage:     { name: 'stage',          at: [728, 655], ell: [420, 645, 306, 66],  side: 'R', alts: [[716, 640], [716, 652], [712, 664], [686, 675], [650, 685]] },
+    condenser: { name: 'condenser',      at: [548, 752], ell: [494, 760, 92, 60],   side: 'R', alts: [[566, 716], [566, 742], [538, 768], [538, 788], [528, 808], [528, 822]], opt: 1 },
+    lamp:      { name: 'lamp',           at: [556, 972], ell: [482, 974, 96, 96],   side: 'R', alts: [[560, 888], [560, 912], [560, 936], [560, 955], [556, 995]] },
     focus:     { name: 'focusing knobs', at: [56, 796],  ell: [118, 800, 112, 96],  side: 'L' }
   };
   /* the light's path, bottom to top, through the middle of each part it crosses */
@@ -102,7 +108,7 @@
       fit();
       var items = wanted.map(function (k) {
         var p = PARTS[k];
-        return { id: k, text: p.name, x: p.at[0], y: p.at[1], side: p.side, cls: lit === k ? 'is-lit' : (lit ? 'is-dim' : '') };
+        return { id: k, text: p.name, x: p.at[0], y: p.at[1], side: p.side, alts: p.alts, opt: !!p.opt, cls: lit === k ? 'is-lit' : (lit ? 'is-dim' : '') };
       });
       /* the left margin is narrow, so its words wrap ("focusing / knobs"); the right margin holds a line each */
       var opt = { left: -16, right: W + 16, font: FONT, top: 0, bottom: H, gap: FONT * 0.25 };

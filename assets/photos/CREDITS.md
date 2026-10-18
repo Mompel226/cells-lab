@@ -5,7 +5,7 @@ their own licences; they are not covered by the lab's licences.
 
 | File | What it is | Source and author | Licence | Changes |
 |---|---|---|---|---|
-| `level-organism-900`, `level-system-900`, `level-organ-900` | a woman's body, her reproductive system, the uterus cut open | HuBMAP Human Reference Atlas, 3D Reference Organ for United Female v1.10 (https://doi.org/10.48539/HBM637.DWBM.744), as rendered on the Foundations shelf | CC BY 4.0 | rendered from the Foundations zoom; the tissues of the organ drawn at their measured widths |
+| `level-organism-900`, `level-system-900`, `level-organ-900` | a woman's body, her reproductive system, the uterus cut open | HuBMAP Human Reference Atlas, 3D Reference Organ for United Female v1.10 (https://doi.org/10.48539/HBM637.DWBM.744; since October 2026 the DOI leads to a "Not Found" page on the atlas's side, and the atlas's 3D library lists the organ: https://humanatlas.io/3d-reference-library), as rendered on the Foundations shelf | CC BY 4.0 | rendered from the Foundations zoom; the tissues of the organ drawn at their measured widths |
 | `level-tissue-900` | the lining of the cervix and the tissue below it, H&E stain | Mikael Häggström, M.D., Wikimedia Commons, *Histology of endocervix* | CC0 | resized; 0.46 µm a pixel at 900 px, from the Foundations shelf's calibration |
 | `connective-tissue-900` | connective tissue under the lining of the cervix | Mikael Häggström, M.D., Wikimedia Commons, *Histology of endocervix* | CC0 | cropped from `level-tissue-900` |
 | `level-cell-900`, `hela-em` | one HeLa cell; part of it in an electron micrograph | Janelia Research Campus, OpenOrganelle dataset jrc_hela-2 (Xu et al. 2021, *Nature* 599:147) | CC BY 4.0 | rendered; one slice at 16 nm a pixel, cropped |

@@ -7,8 +7,13 @@
    card on the right shows its part: if this way of seeing cannot show it (mitochondria under the light
    microscope), the picture changes to one that can, and says why: that is the station's lesson.
 
-   spec: { kind:'cell', parts:[…], modes:[{ id, name, img | svg, w, h, pts:{ part:[x, y] }, say, credit,
-           cannot:{ part: 'why it cannot be seen here' }, heads:[{ x, t }] }] }
+   spec: { kind:'cell', parts:[…], modes:[{ id, name, img | svg, w, h, pts:{ part:[x, y] }, alts:{ part:[[x, y], …] }, say,
+           credit, cannot:{ part: 'why it cannot be seen here' }, heads:[{ x, t }] }] }
+   `alts` are other points on a part, where its name may stand when names crowd, so every line stays level (18 Oct 2026):
+   a drawing's are found from the drawing itself (labs/cells-lab-source/label-points.mjs, added by the build); a
+   photograph's are written in the master, found from its pixels where they can be (a wall's darkest line, the edge of
+   the purple sap) and each checked on the zoomed photograph. A `narrow` arrangement needs its own `alts`, or it
+   inherits the wide picture's, whose points lie elsewhere.
    `heads` are short headings centred on x: above the picture, or at y (picture units, the baseline) for a heading inside
    it (two photographs one above the other: "In water", then "After losing water" in the band between them).
    `narrow: { img, iw, ih, w, h, pts, heads, alt }` is the same picture arranged for a narrow stage (a phone, under 520 px):
@@ -30,6 +35,8 @@
     capsule: 'capsule (beyond 0610)', flagellum: 'flagellum (beyond 0610)', shrunk: 'cytoplasm, shrunk away from the wall' };
   /* on a picture a label line ends on ONE mitochondrion, so it names one (8 Oct 2026 review); the cards keep NAMES */
   var PIC = { mitochondria: 'mitochondrion' };
+  /* the parts beyond 0610: on a phone too narrow for every name, these are left out first (CircLearn.labels) */
+  var BEYOND = { capsule: 1, flagellum: 1 };
   function labelOf(m, p) { return (m.names && m.names[p]) || PIC[p] || NAMES[p] || p; }
   /* the longest line of a label once it wraps at W letters, the way CircLearn.labels wraps it */
   function lineMax(text, W) {
@@ -194,7 +201,10 @@
       fit(M);
       var m = M.cur, f = M.font || 40;
       var items = Object.keys(m.pts).map(function (p) {
-        return { id: p, text: labelOf(m, p), x: m.pts[p][0], y: m.pts[p][1], side: sideOf(M, p), cls: lit === p ? 'is-lit' : (lit ? 'is-dim' : '') };
+        /* `alts`: other points ON the part, where its name may stand when names crowd (a drawing's are found from the
+           drawing itself by labs/cells-lab-source/label-points.mjs; `off`: a first point not on its part, never used) */
+        return { id: p, text: labelOf(m, p), x: m.pts[p][0], y: m.pts[p][1], side: sideOf(M, p), alts: (m.alts || {})[p],
+          off: (m.off || []).indexOf(p) >= 0, opt: !!BEYOND[p], cls: lit === p ? 'is-lit' : (lit ? 'is-dim' : '') };
       });
       if (M.pins) {
         var pl = global.CircLearn.pinLabels({ items: items, left: (m.x0 || 0) - 4, right: (m.x0 || 0) + m.w + 4, font: f, top: m.y0 || 0, bottom: (m.y0 || 0) + m.h, gap: f * 0.25 });
