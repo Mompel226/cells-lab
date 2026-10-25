@@ -416,13 +416,14 @@
 
   function useView(spec, ctx) {
     var root = h('div', 'suse');
+    /* the red banner: a small pop-up over the pictures, below the step (Daniel, 25 Oct 2026: "It should be below … on top
+       of the two circles as a pop-up smaller"), so nothing on the page moves when it shows */
     var alarm = h('div', 'suse__alarm'); alarm.setAttribute('role', 'alert');
-    root.appendChild(alarm);
     var step = h('div', 'suse__step'); step.setAttribute('aria-live', 'polite');
     root.appendChild(step);
     var grid = h('div', 'suse__grid');
     var scopeBox = h('div', 'suse__scope'), eyeBox = h('figure', 'suse__eye'), sideBox = h('figure', 'suse__side');
-    grid.appendChild(scopeBox); grid.appendChild(eyeBox); grid.appendChild(sideBox);
+    grid.appendChild(scopeBox); grid.appendChild(eyeBox); grid.appendChild(sideBox); grid.appendChild(alarm);
     root.appendChild(grid);
     /* a wide, short space for the pictures (a laptop): the microscope, the eyepiece and the side view in one row, so the
        two round views are not squeezed one above the other (css/cells.css .suse__grid.is-wide). The grid's size comes
@@ -557,12 +558,16 @@
         if (!st.on) note = 'The light is off: through the eyepiece you see nothing.';
       } else if (kind === 'obj') {
         if (dir === st.sel) return;
-        if (dir !== 0 && st.k < 4) return refuse('Not yet. First find the specimen with the lowest-power objective lens, ×4.', 'nosepiece');
+        /* found = the specimen in view at ×4 now, however the pupil got there (Daniel, 25 Oct 2026: he raised the stage, saw
+           the cells on the way and was refused ×10, because only the sheet's path, close from the side and then back,
+           counted) */
+        var found = st.k >= 4 || (st.sel === 0 && st.on && d(0) <= SEE);
+        if (dir !== 0 && !found) return refuse('Not yet. First find the specimen with the lowest-power objective lens, ×4.', 'nosepiece');
         if (dir === 2 && st.sel === 0) return refuse('Change one objective lens at a time: turn to ×10 first.', 'nosepiece');
         st.sel = dir;
         /* the pupil decides when the cells look sharp (Daniel, 25 Oct 2026: "You should just basically decide on if you see
            something focus"): turning to the next lens moves the steps on, sharp or not */
-        if (dir === 1 && st.k === 4) st.k = 5;
+        if (dir === 1 && st.k <= 4) st.k = 5;
         if (dir === 2 && st.k === 5) st.k = 6;
         if (gap(st.sel) < 0) st.crashed = true;          /* a longer lens swung over a slide that is too close */
       } else if (kind === 'slide') {
