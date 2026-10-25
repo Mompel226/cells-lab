@@ -531,8 +531,6 @@ html[data-lab-tab="do"] .sparts__hits,html[data-lab-tab="do"] .sparts__labs{disp
 .suse__eye{grid-area:eye} .suse__side{grid-area:side}
 .suse__fov{position:relative;flex:1;min-height:0;width:100%}
 .suse__fov svg{width:100%;height:100%;display:block}
-.suse__veil{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88%,88cqh);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:15%;box-sizing:border-box;background:rgba(8,12,18,.74);color:#F2F5F8;font-size:clamp(12px,14cqh,20px);font-weight:700;line-height:1.2;overflow:hidden}
-.suse__fov{container-type:size}
 .suse__loupe{flex:1;min-height:0;width:100%}
 .suse__lbg{fill:var(--col-card)}
 .suse__lring{fill:none;stroke:var(--accent);stroke-width:2.2}

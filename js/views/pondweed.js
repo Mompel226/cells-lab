@@ -8,7 +8,7 @@
    ×10 and 0.45 mm with the ×40, so the same leaf is drawn at three scales and every length on it is true.
 
    Pondweed.field(mag, o) returns the inside of a round field of view, 600 × 600 units: o.dx, o.dy (µm) move the
-   slide; o.blur blurs it (out of focus). Pondweed.FIELD gives each field's width in µm, Pondweed.ROW the row of cells
+   slide; o.blur blurs it (out of focus); o.op (view only) fades it, so a specimen far out of focus is not seen at all. Pondweed.FIELD gives each field's width in µm, Pondweed.ROW the row of cells
    the Measuring station counts along, and Pondweed.CELL a cell's size.
    ============================================================ */
 (function (global) {
@@ -119,7 +119,7 @@
       (blur ? '<filter id="' + id + 'b" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="' + f2(blur) + '"/></filter>' : '') + '</defs>' +
       (o.round ? '<circle cx="300" cy="300" r="' + (R + 10) + '" class="pw-dark"/>' : '<rect width="600" height="600" class="pw-dark"/>') +
       '<g clip-path="url(#' + id + 'c)"><circle cx="300" cy="300" r="' + R + '" fill="url(#' + id + 'l)"/>' +
-      '<g class="pw-spec"' + (blur ? ' filter="url(#' + id + 'b)"' : '') + '>' + field(mag, o) + '</g>' + (o.over || '') +
+      '<g class="pw-spec"' + (blur ? ' filter="url(#' + id + 'b)"' : '') + (o.op != null && o.op < 1 ? ' opacity="' + f2(Math.max(0, o.op)) + '"' : '') + '>' + field(mag, o) + '</g>' + (o.over || '') +
       '<circle cx="300" cy="300" r="' + R + '" fill="url(#' + id + 'v)" pointer-events="none"/></g>' +
       '<circle cx="300" cy="300" r="' + R + '" class="pw-rim" pointer-events="none"/>';
   }

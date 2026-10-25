@@ -534,11 +534,12 @@
         (!on ? 'The view through the eyepiece: dark, because the light is off.' :
           st.crashed ? 'The view through the eyepiece: the slide is cracked.' : blur >= 14 ? 'The view through the eyepiece: only light, the specimen is far out of focus.' :
           blur ? 'The view through the eyepiece: a blur of green, the specimen is close to the focus.' : 'The view through the eyepiece: the cells of the pondweed leaf are sharp.') + '">' +
-        (on ? global.Pondweed.view(OBJ[st.sel].mag, { round: true, dy: st.dy, blur: blur, over: st.crashed ? '<path class="suse__crackv" d="M60 380 L210 300 L260 340 L420 210 L540 250"/>' : '' }) :
+        /* far out of focus a real microscope shows only light: the specimen fades out as the blur reaches its most, so what
+           a pupil sees is the whole clue (Daniel, 25 Oct 2026: they "decide on if you see something focus") */
+        (on ? global.Pondweed.view(OBJ[st.sel].mag, { round: true, dy: st.dy, blur: blur, op: blur > 10 ? (14 - blur) / 4 : 1, over: st.crashed ? '<path class="suse__crackv" d="M60 380 L210 300 L260 340 L420 210 L540 250"/>' : '' }) :
           '<circle cx="300" cy="300" r="292" class="pw-dark"/><circle cx="300" cy="300" r="282" class="pw-rim"/>') + '</svg>' +
-        (look === 'side' ? '<span class="suse__veil">Not yet</span>' : '') + '</div>' +
-        '<figcaption><b>Through the eyepiece</b> · ' + (look === 'side' ? 'not yet: watch the gap <b>From the side</b>' :
-          on ? 'total magnification 10 × ' + OBJ[st.sel].mag + ' = <b>×' + (10 * OBJ[st.sel].mag) + '</b>' : 'dark: the light is off') + '</figcaption>';
+        '</div>' +
+        '<figcaption><b>Through the eyepiece</b> · ' + (on ? 'total magnification 10 × ' + OBJ[st.sel].mag + ' = <b>×' + (10 * OBJ[st.sel].mag) + '</b>' : 'dark: the light is off') + '</figcaption>';
       step.innerHTML = '<span class="suse__n">' + (st.k < STEPS.length - 1 ? 'Step ' + (st.k + 1) + ' of ' + (STEPS.length - 1) : 'Well done') + '</span><span class="suse__t">' + STEPS[st.k].t + '</span>';
       step.classList.toggle('is-done', st.k === STEPS.length - 1);
       var sw = ctl.querySelector('[data-light]');
@@ -556,9 +557,13 @@
         if (!st.on) note = 'The light is off: through the eyepiece you see nothing.';
       } else if (kind === 'obj') {
         if (dir === st.sel) return;
-        if (dir !== 0 && st.k < 5) return refuse('Not yet. First find the specimen and make it sharp with the lowest-power objective lens, ×4.', 'nosepiece');
-        if (dir === 2 && st.k < 6) return refuse('Not yet. Change one objective lens at a time: first make the cells sharp with the ×10 objective lens.', 'nosepiece');
+        if (dir !== 0 && st.k < 4) return refuse('Not yet. First find the specimen with the lowest-power objective lens, ×4.', 'nosepiece');
+        if (dir === 2 && st.sel === 0) return refuse('Change one objective lens at a time: turn to ×10 first.', 'nosepiece');
         st.sel = dir;
+        /* the pupil decides when the cells look sharp (Daniel, 25 Oct 2026: "You should just basically decide on if you see
+           something focus"): turning to the next lens moves the steps on, sharp or not */
+        if (dir === 1 && st.k === 4) st.k = 5;
+        if (dir === 2 && st.k === 5) st.k = 6;
         if (gap(st.sel) < 0) st.crashed = true;          /* a longer lens swung over a slide that is too close */
       } else if (kind === 'slide') {
         st.dy = Math.max(-2 * NUDGE, Math.min(2 * NUDGE, st.dy + dir * NUDGE));
