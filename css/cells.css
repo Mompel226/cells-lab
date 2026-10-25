@@ -597,6 +597,8 @@ html[data-lab-tab="do"] .sparts__hits,html[data-lab-tab="do"] .sparts__labs{disp
 .mc__box{flex:1;min-height:0}
 .mc__svg{width:100%;height:100%;display:block;touch-action:none}
 .mc__ctl{justify-content:center;flex-wrap:wrap}
+/* the buttons repeat while held: no text selection or phone menu on a long press */
+.mc__ctl .suse__b{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .mc__k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft)}
 .mc__say{margin:0;text-align:center;font-size:13px;line-height:1.4;color:var(--col-soft)}
 .mc-desk{fill:var(--col-bg)}
@@ -615,11 +617,19 @@ html[data-lab-tab="do"] .sparts__hits,html[data-lab-tab="do"] .sparts__labs{disp
 .pm__og{fill:none;stroke:#6C6A63;stroke-width:1.4}
 .mc-sbar{fill:#111}
 .mc-sbar__t{font:600 13px var(--font);fill:#111;text-anchor:middle}
-.mc-ruler{cursor:move}
-.mc-ruler rect{fill:rgba(255,250,222,.9);stroke:#9A8F5C;stroke-width:1.2}
+.mc-ruler [data-drag="ruler"]{cursor:move}
+/* a clear ruler: the specimen shows through it, as through a real one */
+.mc-ruler rect{fill:rgba(255,250,222,.55);stroke:#9A8F5C;stroke-width:1.2}
 .mc-ruler line{stroke:#3B3520;stroke-width:1}
 .mc-ruler text{font:500 11px var(--mono);fill:#3B3520;text-anchor:middle}
 .mc-ruler .mc-ruler__u{text-anchor:end}
+.mc-turn{cursor:grab}
+.mc-turn__hit{fill:transparent;pointer-events:all}
+.mc-turn__c{fill:#FFFDF2;stroke:#9A8F5C;stroke-width:1.4}
+.mc-turn__a{fill:none;stroke:#3B3520;stroke-width:1.8}
+.mc-turn__h{fill:#3B3520}
+.mc-l{font:400 12.5px var(--font);fill:#333;text-anchor:end}
+.mc-ll{fill:none;stroke:#333;stroke-width:1}
 
 /* ---------- station 11, Drawing what you see: four pencil drawings (js/views/drawing.js, 25 Oct 2026) ---------- */
 .dwv{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}

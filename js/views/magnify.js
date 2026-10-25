@@ -14,11 +14,15 @@
 
    spec: { kind:'magnify', img:'cheek-cell.jpg', w, h, P:[x,y], Q:[x,y], actual: 0.06, from: 24, to: 96, step: 3, start: 60, card }
 
-   spec.card (25 Oct 2026, the Year 9 practice): a second picture, "Measure a micrograph", the Year 12 microscopy
-   practical's printed page (practicals/A22-microscopy-skills-pract/js/scope.js, ported here): Figure 1, a Paramecium
-   88 mm long with a 50 µm scale bar 20 mm long (so ×400 and 220 µm), and a clear ruler to drag, or to move and turn
-   with the buttons. The page is drawn 4 units to the millimetre, so what the ruler reads is what the questions expect.
-   Nothing is calculated on it: the questions ask for that.
+   spec.card (25 Oct 2026, the Year 9 practice): a second picture, "Measure a micrograph", a printed page first drawn
+   for the Year 12 microscopy practical (practicals/A22-microscopy-skills-pract/js/scope.js): Figure 1, a Paramecium
+   88 mm long with a 50 µm scale bar 20 mm long (so ×400 and 220 µm), and a clear ruler to drag and turn. The page is
+   drawn 4 units to the millimetre, so what the ruler reads is what the questions expect. Nothing is calculated on it:
+   the questions ask for that.
+   The same evening (Daniel: "ask features in the cell, structures in the cell that cannot be measured with just 90
+   degrees or 0 degrees"): the Paramecium lies at an angle and its large nucleus at another, so each length needs the
+   ruler turned its own way; the ruler turns freely about its 0 mark (its round handle, or ↺ ↻ a degree at a time) and
+   the buttons repeat while held. tools/measure-check.mjs measures what is drawn here against the master's answers.
    ============================================================ */
 (function (global) {
   'use strict';
@@ -33,8 +37,11 @@
   /* a number as an exam answer writes it: no trailing zeros, no float noise */
   function num(x) { return String(+x.toPrecision(10)); }
 
-  /* ---------- the printed micrograph (from the Year 12 practical's js/scope.js) ---------- */
-  var MM = 4, PARA = { cx: 300, cy: 250, L: 88 * MM, W: 29 * MM, bar: 20 * MM };
+  /* ---------- the printed micrograph (first drawn for the Year 12 practical's js/scope.js) ---------- */
+  /* turn: the body's angle on the page; nuc: the large nucleus's angle, turned from the body. What the ruler should read:
+     the bar 20 mm; the body 88 mm long and 25.5 mm wide at its widest (not 29 mm: the oral groove and the tapering
+     narrow it); the large nucleus 17 mm long (rx 34). Along the body the nucleus reads about 15 mm, level about 12 mm. */
+  var MM = 4, PARA = { cx: 300, cy: 246, L: 88 * MM, W: 29 * MM, bar: 20 * MM, turn: -27, nuc: -23 };
   function f2(x) { return (Math.round(x * 100) / 100).toString(); }
   function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function pathOf(pts) { return 'M' + pts.map(function (p) { return f2(p[0]) + ' ' + f2(p[1]); }).join(' L') + ' Z'; }
@@ -50,14 +57,23 @@
     P.forEach(function (p, i) { if (i % 2) return; var q = P[(i + 1) % P.length], dx = q[0] - p[0], dy = q[1] - p[1], m = Math.hypot(dx, dy) || 1; cil += 'M' + f2(p[0]) + ' ' + f2(p[1]) + 'l' + f2(dy / m * 7) + ' ' + f2(-dx / m * 7); });
     g += '<path class="pm__cil" d="' + cil + '"/><path class="pm" d="' + pathOf(P) + '"/>';
     for (k = 0; k < 70; k++) { var x = cx + (r() - 0.5) * L * 0.86, yy = cy + (r() - 0.5) * W * 0.62; if (Math.pow((x - cx) / (L / 2), 2) + Math.pow((yy - cy) / (W / 2), 2) < 0.7) g += '<circle class="pm__gr" cx="' + f2(x) + '" cy="' + f2(yy) + '" r="' + f2(1 + r() * 1.6) + '"/>'; }
-    [[-60, -10, 10], [-20, 22, 8], [30, -16, 9], [70, 12, 7], [100, -6, 6], [-95, 14, 7]].forEach(function (v) { g += '<circle class="pm__fv" cx="' + (cx + v[0]) + '" cy="' + (cy + v[1]) + '" r="' + v[2] + '"/>'; });
-    g += '<ellipse class="pm__mn" cx="' + (cx + 4) + '" cy="' + (cy - 4) + '" rx="34" ry="21" transform="rotate(-8 ' + (cx + 4) + ' ' + (cy - 4) + ')"/><circle class="pm__mi" cx="' + (cx + 42) + '" cy="' + (cy + 8) + '" r="5"/>';
+    /* food vacuoles clear of the nucleus, its two ends and the label line */
+    [[-60, -10, 10], [52, 14, 8], [88, 14, 6], [-30, -36, 7], [-95, 14, 7], [60, -28, 7]].forEach(function (v) { g += '<circle class="pm__fv" cx="' + (cx + v[0]) + '" cy="' + (cy + v[1]) + '" r="' + v[2] + '"/>'; });
+    /* the large nucleus, turned from the body, and the small nucleus in its side, where it adds nothing to the length */
+    var nx = cx + 4, ny = cy - 4, na = PARA.nuc * Math.PI / 180;
+    g += '<ellipse class="pm__mn" data-m="nucleus" cx="' + nx + '" cy="' + ny + '" rx="34" ry="21" transform="rotate(' + PARA.nuc + ' ' + nx + ' ' + ny + ')"/>' +
+      '<circle class="pm__mi" cx="' + f2(nx + 6 * Math.cos(na) - 25 * Math.sin(na)) + '" cy="' + f2(ny + 6 * Math.sin(na) + 25 * Math.cos(na)) + '" r="5"/>';
     [[cx + 118, cy - 14], [cx - 124, cy - 10]].forEach(function (v) {
       var rays = '', x0 = v[0], y0 = v[1];
       for (var q = 0; q < 7; q++) { var a2 = 2 * Math.PI * q / 7; rays += 'M' + f2(x0 + 8 * Math.cos(a2)) + ' ' + f2(y0 + 8 * Math.sin(a2)) + 'l' + f2(13 * Math.cos(a2)) + ' ' + f2(13 * Math.sin(a2)); }
       g += '<path class="pm__cv" d="' + rays + '"/><circle class="pm__cvc" cx="' + x0 + '" cy="' + y0 + '" r="8"/>';
     });
-    return g + '<path class="pm__og" d="M' + (cx + 70) + ' ' + (cy + 30) + ' Q' + (cx + 20) + ' ' + (cy + 46) + ' ' + (cx - 30) + ' ' + (cy + 26) + '"/>';
+    g += '<path class="pm__og" d="M' + (cx + 70) + ' ' + (cy + 30) + ' Q' + (cx + 20) + ' ' + (cy + 46) + ' ' + (cx - 30) + ' ' + (cy + 26) + '"/>';
+    /* the label: a level line from the left that ends ON the nucleus, at the side of it (memory label-lines-never-cross) */
+    var tb = PARA.turn * Math.PI / 180, px = cx + 4 * Math.cos(tb) + 4 * Math.sin(tb), py = cy + 4 * Math.sin(tb) - 4 * Math.cos(tb);
+    var ta = (PARA.turn + PARA.nuc) * Math.PI / 180, half = 1 / Math.sqrt(Math.pow(Math.cos(ta) / 34, 2) + Math.pow(Math.sin(ta) / 21, 2));
+    return '<g data-m="body" transform="rotate(' + PARA.turn + ' ' + cx + ' ' + cy + ')">' + g + '</g>' +
+      '<path class="mc-ll" d="M152 ' + f2(py) + ' H' + f2(px - half + 1) + '"/><text class="mc-l" x="148" y="' + f2(py + 4) + '">large nucleus</text>';
   }
   function rulerG(st) {
     var len = 120, wid = 16, t = '', n = '', ox = 10;   /* the 0 mark sits 10 units (2.5 mm) in from the ruler's end, as on a real ruler */
@@ -66,19 +82,27 @@
       t += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + l + '"/>';
       if (mm % 10 === 0) n += '<text x="' + x + '" y="27">' + (mm / 10) + '</text>';
     }
-    return '<g class="mc-ruler" data-drag="ruler" transform="translate(' + f2(st.rx) + ' ' + f2(st.ry) + ') rotate(' + st.rot + ')">' +
-      '<rect x="' + (-ox) + '" y="-2" width="' + (len * MM + 2 * ox) + '" height="' + (wid * MM) + '" rx="4"/>' + t + n +
-      '<text class="mc-ruler__u" x="' + (len * MM - 2) + '" y="' + (wid * MM - 12) + '">cm</text></g>';
+    /* the round handle turns the ruler about its 0 mark; it sits under the 7 cm mark, so it stays on the page */
+    var hx = 70 * MM, hy = 45, hr = 8;
+    return '<g class="mc-ruler" transform="translate(' + f2(st.rx) + ' ' + f2(st.ry) + ') rotate(' + f2(st.rot) + ')">' +
+      '<g data-drag="ruler"><rect x="' + (-ox) + '" y="-2" width="' + (len * MM + 2 * ox) + '" height="' + (wid * MM) + '" rx="4"/>' + t + n +
+      '<text class="mc-ruler__u" x="' + (len * MM - 2) + '" y="' + (wid * MM - 12) + '">cm</text></g>' +
+      '<g class="mc-turn" data-drag="turn"><circle class="mc-turn__hit" cx="' + hx + '" cy="' + hy + '" r="32"/><circle class="mc-turn__c" cx="' + hx + '" cy="' + hy + '" r="16"/>' +
+      '<path class="mc-turn__a" d="M' + (hx - hr) + ' ' + hy + ' A' + hr + ' ' + hr + ' 0 1 1 ' + hx + ' ' + (hy + hr) + '"/>' +
+      '<path class="mc-turn__h" d="M' + (hx - 4.5) + ' ' + (hy + hr) + ' L' + (hx + 1) + ' ' + (hy + hr - 4) + ' L' + (hx + 1) + ' ' + (hy + hr + 4) + ' Z M' + (hx - hr) + ' ' + (hy + 4.5) + ' L' + (hx - hr - 4) + ' ' + (hy - 1) + ' L' + (hx - hr + 4) + ' ' + (hy - 1) + ' Z"/></g></g>';
   }
+  /* an angle kept between -180 and 180, to a tenth of a degree */
+  function norm(a) { a = a % 360; if (a > 180) a -= 360; if (a <= -180) a += 360; return Math.round(a * 10) / 10; }
   function cardSvg(st) {
-    var x = 18, y = 40, w = 564, hh = 452, bx = 406, by = 418;
+    /* the paper reaches below the caption, so the clear ruler starts on white paper in the dark version too */
+    var x = 18, y = 40, w = 564, hh = 544, mh = 354, bx = 406, by = 418;
     return '<rect width="600" height="600" class="mc-desk"/>' +
       '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" class="mc-paper"/>' +
       '<text class="mc-t" x="' + (x + 18) + '" y="' + (y + 30) + '">Figure 1</text>' +
-      '<rect x="' + (x + 18) + '" y="' + (y + 44) + '" width="' + (w - 36) + '" height="' + (hh - 98) + '" class="mc-mg"/>' +
+      '<rect x="' + (x + 18) + '" y="' + (y + 44) + '" width="' + (w - 36) + '" height="' + mh + '" class="mc-mg"/>' +
       '<g>' + paramecium() + '</g>' +
       '<rect x="' + bx + '" y="' + by + '" width="' + PARA.bar + '" height="6" class="mc-sbar"/><text class="mc-sbar__t" x="' + (bx + PARA.bar / 2) + '" y="' + (by - 8) + '">50 µm</text>' +
-      '<text class="mc-s" x="' + (x + 18) + '" y="' + (y + hh - 22) + '">A single-celled organism, Paramecium, seen with a light microscope.</text>' +
+      '<text class="mc-s" x="' + (x + 18) + '" y="' + (y + 44 + mh + 32) + '">A single-celled organism, Paramecium, seen with a light microscope.</text>' +
       rulerG(st);
   }
 
@@ -154,7 +178,7 @@
     root.appendChild(work);
 
     /* the second picture: a printed micrograph and a ruler (spec.card) */
-    var mode = 'cell', card = null, cst = { rx: 40, ry: 520, rot: 0 }, csvg = null, cctl = null;
+    var mode = 'cell', card = null, cst = { rx: 40, ry: 500, rot: 0 }, csvg = null, cctl = null;
     var modes = null;
     if (spec.card) {
       modes = h('div', 'mag__modes');
@@ -166,33 +190,52 @@
       });
       root.insertBefore(modes, root.firstChild);
       card = h('div', 'mc');
-      card.innerHTML = '<div class="mc__box"><svg class="mc__svg" viewBox="0 0 600 600" role="img" aria-label="Figure 1, a micrograph of a Paramecium with a 50 µm scale bar, printed as on an exam page, and a clear ruler in millimetres that you can drag."></svg></div>' +
+      card.innerHTML = '<div class="mc__box"><svg class="mc__svg" viewBox="0 0 600 600" role="img" aria-label="Figure 1, a micrograph of a Paramecium lying at an angle, with its large nucleus labelled and a 50 µm scale bar, printed as on an exam page, and a clear ruler in millimetres that you can drag and turn."></svg></div>' +
         '<div class="vbar mc__ctl"><span class="mc__k">Ruler</span>' +
-        '<button type="button" class="suse__b" data-rx="-1" aria-label="Move the ruler 1 mm to the left">◀</button>' +
-        '<button type="button" class="suse__b" data-rx="1" aria-label="Move the ruler 1 mm to the right">▶</button>' +
-        '<button type="button" class="suse__b" data-ry="-1" aria-label="Move the ruler 1 mm up">▲</button>' +
-        '<button type="button" class="suse__b" data-ry="1" aria-label="Move the ruler 1 mm down">▼</button>' +
-        '<button type="button" class="suse__b mc__turn">Turn 90°</button></div>' +
-        '<p class="mc__say">Drag the ruler onto what you measure. Read from its 0 mark: 10 small divisions are 1 cm, so each small division is 1 mm.</p>';
+        '<button type="button" class="suse__b" data-rx="-0.5" data-hold aria-label="Move the ruler half a millimetre to the left">◀</button>' +
+        '<button type="button" class="suse__b" data-rx="0.5" data-hold aria-label="Move the ruler half a millimetre to the right">▶</button>' +
+        '<button type="button" class="suse__b" data-ry="-0.5" data-hold aria-label="Move the ruler half a millimetre up">▲</button>' +
+        '<button type="button" class="suse__b" data-ry="0.5" data-hold aria-label="Move the ruler half a millimetre down">▼</button>' +
+        '<button type="button" class="suse__b" data-turn="-1" data-hold aria-label="Turn the ruler 1 degree anticlockwise">↺</button>' +
+        '<button type="button" class="suse__b" data-turn="1" data-hold aria-label="Turn the ruler 1 degree clockwise">↻</button>' +
+        '<button type="button" class="suse__b" data-turn="90">Turn 90°</button></div>' +
+        '<p class="mc__say">Drag the ruler to move it, and drag its round handle to turn it, or hold a button. Read from its 0 mark: the numbers are centimetres, and each small division is 1 mm.</p>';
       root.appendChild(card);
       csvg = card.querySelector('svg'); cctl = card.querySelector('.mc__ctl');
       var drawCard = function () { csvg.innerHTML = cardSvg(cst); };
       var cpt = function (ev) { var p = csvg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(csvg.getScreenCTM().inverse()); };
       var cdrag = null;
+      var keep = function () { cst.rx = Math.max(-300, Math.min(580, cst.rx)); cst.ry = Math.max(-60, Math.min(600, cst.ry)); };
+      /* dragging the ruler moves it; dragging its round handle turns it about its 0 mark */
       csvg.addEventListener('pointerdown', function (ev) {
         var t = ev.target.closest ? ev.target.closest('[data-drag]') : null; if (!t) return;
-        cdrag = { p: cpt(ev), rx: cst.rx, ry: cst.ry }; try { csvg.setPointerCapture(ev.pointerId); } catch (e) {} ev.preventDefault();
+        var p = cpt(ev);
+        cdrag = t.getAttribute('data-drag') === 'turn' ? { turn: true, a: Math.atan2(p.y - cst.ry, p.x - cst.rx), rot: cst.rot } : { p: p, rx: cst.rx, ry: cst.ry };
+        try { csvg.setPointerCapture(ev.pointerId); } catch (e) {} ev.preventDefault();
       });
       csvg.addEventListener('pointermove', function (ev) {
         if (!cdrag) return; var q = cpt(ev);
-        cst.rx = Math.max(-300, Math.min(580, cdrag.rx + q.x - cdrag.p.x)); cst.ry = Math.max(-60, Math.min(600, cdrag.ry + q.y - cdrag.p.y)); drawCard();
+        if (cdrag.turn) cst.rot = norm(cdrag.rot + (Math.atan2(q.y - cst.ry, q.x - cst.rx) - cdrag.a) * 180 / Math.PI);
+        else { cst.rx = cdrag.rx + q.x - cdrag.p.x; cst.ry = cdrag.ry + q.y - cdrag.p.y; keep(); }
+        drawCard();
       });
       var cend = function () { cdrag = null; };
       csvg.addEventListener('pointerup', cend); csvg.addEventListener('pointercancel', cend);
-      Array.prototype.forEach.call(cctl.querySelectorAll('[data-rx],[data-ry]'), function (b) {
-        b.addEventListener('click', function () { cst.rx += (+b.getAttribute('data-rx') || 0) * MM; cst.ry += (+b.getAttribute('data-ry') || 0) * MM; drawCard(); });
+      /* each button moves or turns the ruler once; held down (data-hold), it goes on until it is let go */
+      Array.prototype.forEach.call(cctl.querySelectorAll('[data-rx],[data-ry],[data-turn]'), function (b) {
+        var step = function () {
+          cst.rx += (+b.getAttribute('data-rx') || 0) * MM; cst.ry += (+b.getAttribute('data-ry') || 0) * MM; keep();
+          cst.rot = norm(cst.rot + (+b.getAttribute('data-turn') || 0)); drawCard();
+        };
+        var held = null, stop = function () { if (held) { clearTimeout(held.t); clearInterval(held.i); held = null; } };
+        b.addEventListener('pointerdown', function (ev) {
+          if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+          stop(); step();
+          if (b.hasAttribute('data-hold')) { var h = held = { t: 0, i: 0 }; h.t = setTimeout(function () { h.i = setInterval(step, 70); }, 400); }
+        });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (e) { b.addEventListener(e, stop); });
+        b.addEventListener('click', function (ev) { if (ev.detail === 0) step(); });   /* Enter or Space: a click with no pointer */
       });
-      cctl.querySelector('.mc__turn').addEventListener('click', function () { cst.rot = cst.rot ? 0 : 90; drawCard(); });
       drawCard();
     }
     function setMode(m) {

@@ -7,7 +7,7 @@
 [![Open the lab](https://img.shields.io/badge/▶_Open_the_lab-0969DA?style=for-the-badge&logoColor=white)](https://nlcsbiology.com/cells-lab/)
 
 ![12 stations](https://img.shields.io/badge/12-stations-0F6B57)
-![129 questions](https://img.shields.io/badge/129-questions-8A5A0E)
+![131 questions](https://img.shields.io/badge/131-questions-8A5A0E)
 ![Marks itself](https://img.shields.io/badge/questions-mark_themselves-0B6A8C)
 ![No sign-up](https://img.shields.io/badge/students-no_sign--up_needed-6FA287)
 
@@ -28,10 +28,10 @@ the answer.
 |  |  |
 |---|---|
 | 🔬 **12 stations** | from body to cell · parts of the microscope · using the microscope · magnification · millimetres and micrometres · the animal cell · the plant cell · the bacterial cell · three cells compared · specialised cells · drawing what you see · measuring a cell |
-| ✍️ **129 questions** | fill the gaps · multiple choice · put in order · match up · sort into groups · tick a grid · drag the words · **press the part on a real photograph or drawing** |
+| ✍️ **131 questions** | fill the gaps · multiple choice · put in order · match up · sort into groups · tick a grid · drag the words · **press the part on a real photograph or drawing** |
 | 🧍 **From a body to one cell** | the Foundations shelf's real woman, from her whole body to one cell, one level at a time; and a plant the same way |
 | 🔭 **A microscope you work** | its fifteen parts named on a drawing of the school's own microscope (a lamp in the base with a light switch, and one double knob: coarse the wide part, fine the small part), with a quiz on their names and jobs; light the lamp, then focus a pondweed leaf step by step from ×40 to ×400: always the lowest power first, the coarse adjustment knob only until colour shows (move the slide by hand to find the specimen), then the fine adjustment knob only; the microscope refuses a wrong move with a red warning and a beep; follow the light from the lamp to the eye |
-| 📏 **Sizes you can see** | a cell that grows on a slider while its actual size never changes; a micrograph printed as on an exam page, with a scale bar and a ruler to drag; a ruler that zooms from 1 mm to 5 µm, with real tissue, a mitochondrion and bacteria on it at their true scale |
+| 📏 **Sizes you can see** | a cell that grows on a slider while its actual size never changes; a micrograph printed as on an exam page, with a scale bar, a Paramecium and its nucleus each at an angle, and a clear ruler to drag and turn; a ruler that zooms from 1 mm to 5 µm, with real tissue, a mitochondrion and bacteria on it at their true scale |
 | 🧫 **Each cell seen three ways** | the drawing, the light microscope and the electron microscope: a part you cannot see with one opens the one that shows it, and says why |
 | ✏️ **Drawing and measuring, never the report** | the rules of a biological drawing: one drawing that follows them all and three that each break three; a clear ruler on the slide at ×100 and the cells counted across 1 mm, on a pondweed leaf: the lab never shows the specimen of the assessed practical |
 | 📖 **A shared glossary** | one wording per term, the same in every lab |
