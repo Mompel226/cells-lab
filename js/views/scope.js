@@ -380,8 +380,8 @@
   var ZF = [0, 30, 40], TOL = [60, 15, 6], SEE = 300, COARSE = 200, FINE = 5, ZMAX = 3000, Z0 = 650, NUDGE = 300;
   var STEPS = [
     { look: 'eye',  t: 'Press the <b>light switch</b> on the base, so that the <b>lamp</b> under the stage shines.' },
-    { look: 'eye',  t: 'Turn the <b>nosepiece</b> to the lowest-power objective lens, ×4. <u>Always start here.</u>' },
-    { look: 'side', t: 'Look from the side. Turn the <b>coarse adjustment knob</b> (the wide part of the knob) ▲ to raise the stage, until the slide almost touches the lens.' },
+    { look: 'eye',  t: 'The last class left the ×40 objective lens in place. Turn the <b>nosepiece</b> to the lowest-power objective lens, ×4. <u>Always start here.</u>' },
+    { look: 'side', t: 'Look from the side, not through the eyepiece. Turn the <b>coarse adjustment knob</b> (the wide part) ▲ to raise the stage, until the slide almost touches the lens.' },
     { look: 'eye',  t: 'Look through the eyepiece. Turn the <b>coarse adjustment knob</b> ▼ slowly, to lower the stage, until you see colour. Cannot tell? Move the slide a little with your fingers: what moves is your specimen.' },
     { look: 'eye',  t: 'You can see the specimen. <u>Now turn only the</u> <b>fine adjustment knob</b> (the small part of the knob), until the cells are sharp.' },
     { look: 'eye',  t: 'Turn the <b>nosepiece</b> to ×10. Then turn <u>only the</u> <b>fine adjustment knob</b>.' },
@@ -424,6 +424,13 @@
     var scopeBox = h('div', 'suse__scope'), eyeBox = h('figure', 'suse__eye'), sideBox = h('figure', 'suse__side');
     grid.appendChild(scopeBox); grid.appendChild(eyeBox); grid.appendChild(sideBox);
     root.appendChild(grid);
+    /* a wide, short space for the pictures (a laptop): the microscope, the eyepiece and the side view in one row, so the
+       two round views are not squeezed one above the other (css/cells.css .suse__grid.is-wide). The grid's size comes
+       from the column, never from its pictures, so the class cannot make it change size again. */
+    if (global.ResizeObserver) new global.ResizeObserver(function () {
+      var r = grid.getBoundingClientRect();
+      if (r.width && r.height) grid.classList.toggle('is-wide', r.width > r.height * 1.45);
+    }).observe(grid);
     var ctl = h('div', 'suse__ctl');
     ctl.innerHTML =
       '<span class="suse__g" data-part="switch" role="group" aria-label="The light switch"><span class="suse__k">Light switch</span><span class="suse__ks">Light</span>' +
@@ -488,7 +495,7 @@
 
     var ids = { a: uid(), b: uid() };
     function paintAll() {
-      var sy = st.z / 100 * MM;
+      var sy = st.z / 100 * MM, look = STEPS[st.k].look;
       /* while "Follow the light" plays, the lamp in the drawing glows; the view through the eyepiece shows only what the
          light switch does */
       var o = { sy: sy, sel: st.sel, slide: true, crack: st.crashed, on: st.on || st.beam > 0, rc: st.rc, rf: st.rf };
@@ -516,20 +523,22 @@
         g.classList.toggle('is-lit', lit2 === 'lowobj' ? g.classList.contains('is-use') : g.getAttribute('data-part') === lit2); });
       /* a round lens: the drawing clipped to a circle inside its own square, so it stays round in any box */
       var gp = gap(st.sel);
+      sideBox.classList.toggle('is-watch', look === 'side');
       sideBox.innerHTML = '<div class="suse__loupe">' + picture(ids.b, '<clipPath id="' + ids.b + 'c"><circle cx="' + cx + '" cy="' + cy + '" r="' + lr + '"/></clipPath>' +
         '<circle class="suse__lbg" cx="' + cx + '" cy="' + cy + '" r="' + lr + '"/><g clip-path="url(#' + ids.b + 'c)">' + art(o) + '</g>' +
         '<circle class="suse__lring" cx="' + cx + '" cy="' + cy + '" r="' + lr + '"/>', 'suse__lsvg', [cx - lr - 4, cy - lr - 4, 2 * lr + 8, 2 * lr + 8],
         'Close up, from the side: the end of the objective lens and the slide.') + '</div>' +
-        '<figcaption><b>From the side</b> · ' + (st.crashed ? 'the slide hit the lens' : 'gap: ' + (gp >= 1000 ? Math.round(gp / 100) : (Math.round(gp / 10) / 10)) + ' mm') + '</figcaption>';
-      var look = STEPS[st.k].look, blur = blurOf(), on = st.on;
+        '<figcaption>' + (look === 'side' ? '<span class="suse__watch">Watch here</span> ' : '') + '<b>From the side</b> · ' + (st.crashed ? 'the slide hit the lens' : 'gap: ' + (gp >= 1000 ? Math.round(gp / 100) : (Math.round(gp / 10) / 10)) + ' mm') + '</figcaption>';
+      var blur = blurOf(), on = st.on;
       eyeBox.innerHTML = '<div class="suse__fov' + (look === 'side' ? ' is-side' : '') + '"><svg viewBox="0 0 600 600" role="img" aria-label="' +
         (!on ? 'The view through the eyepiece: dark, because the light is off.' :
           st.crashed ? 'The view through the eyepiece: the slide is cracked.' : blur >= 14 ? 'The view through the eyepiece: only light, the specimen is far out of focus.' :
           blur ? 'The view through the eyepiece: a blur of green, the specimen is close to the focus.' : 'The view through the eyepiece: the cells of the pondweed leaf are sharp.') + '">' +
         (on ? global.Pondweed.view(OBJ[st.sel].mag, { round: true, dy: st.dy, blur: blur, over: st.crashed ? '<path class="suse__crackv" d="M60 380 L210 300 L260 340 L420 210 L540 250"/>' : '' }) :
           '<circle cx="300" cy="300" r="292" class="pw-dark"/><circle cx="300" cy="300" r="282" class="pw-rim"/>') + '</svg>' +
-        (look === 'side' ? '<span class="suse__veil">You are looking from the side</span>' : '') + '</div>' +
-        '<figcaption><b>Through the eyepiece</b> · ' + (on ? 'total magnification 10 × ' + OBJ[st.sel].mag + ' = <b>×' + (10 * OBJ[st.sel].mag) + '</b>' : 'dark: the light is off') + '</figcaption>';
+        (look === 'side' ? '<span class="suse__veil">Not yet</span>' : '') + '</div>' +
+        '<figcaption><b>Through the eyepiece</b> · ' + (look === 'side' ? 'not yet: watch the gap <b>From the side</b>' :
+          on ? 'total magnification 10 × ' + OBJ[st.sel].mag + ' = <b>×' + (10 * OBJ[st.sel].mag) + '</b>' : 'dark: the light is off') + '</figcaption>';
       step.innerHTML = '<span class="suse__n">' + (st.k < STEPS.length - 1 ? 'Step ' + (st.k + 1) + ' of ' + (STEPS.length - 1) : 'Well done') + '</span><span class="suse__t">' + STEPS[st.k].t + '</span>';
       step.classList.toggle('is-done', st.k === STEPS.length - 1);
       var sw = ctl.querySelector('[data-light]');

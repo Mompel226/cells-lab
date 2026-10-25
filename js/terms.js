@@ -74,8 +74,10 @@
   var JUMP = {};
   function jump(list, st) { if (BUILT[st]) list.forEach(function (w) { JUMP[w] = st; }); }
   jump(['tissue', 'tissues', 'organ', 'organs', 'organ system', 'organ systems', 'organism', 'organisms'], 'levels');
-  /* slide, coverslip and stain are not here: they are explained by their definitions, where they are first used (8 Oct 2026) */
-  jump(['light microscope', 'light microscopes', 'total magnification'], 'microscope');
+  /* slide, coverslip and stain are not here: they are explained by their definitions, where they are first used (8 Oct 2026).
+     The light microscope is taught, drawn and named in Parts of the microscope, where its key-word card is (25 Oct 2026) */
+  jump(['light microscope', 'light microscopes'], 'parts');
+  jump(['total magnification'], 'microscope');
   jump(['magnification', 'magnifications', 'image size', 'actual size'], 'magnification');
   jump(['millimetre', 'millimetres', 'micrometre', 'micrometres'], 'units');
   jump(['specialised cell', 'specialised cells', 'ciliated cell', 'ciliated cells', 'cilia', 'root hair cell', 'root hair cells', 'palisade cell', 'palisade cells',
@@ -121,6 +123,11 @@
     .forEach(function (w) { GOES_THERE[w] = true; });
 
   var here = null, seen = null, quiet = false, wentTo = null, teaching = false, arrowed = false;
+  /* this station's key-word cards (the flip cards at the bottom of its Learn tab), by the word in lower case. Each key word
+     has ONE card in the lab, in the station that first teaches it (Daniel, 25 Oct 2026: "please do not repeat keywords"),
+     and in that station the word's first mention leads down to its card ("should then link to the flashcard at the
+     bottom of it"), never away to another station */
+  var KW = {};
   var NEVER_DOTTED = { cell: 1, cells: 1 };
   /* The pictures this station is about to put on the page. A magnifier that opens one of
      them shows the reader what is already in front of them — worst where the caption of a
@@ -129,7 +136,10 @@
      to give. */
   var SHOWN = {};
   function setShown(m) { SHOWN = m || {}; }
-  function setStation(id) { here = id; seen = Object.create(null); quiet = false; wentTo = Object.create(null); }
+  function setStation(id) {
+    here = id; seen = Object.create(null); quiet = false; wentTo = Object.create(null); KW = {};
+    (global.STATIONS || []).forEach(function (s) { if (s.id === id) (s.keywords || []).forEach(function (w) { KW[String(w.term).toLowerCase()] = w.term; }); });
+  }
   /* a widget built afresh (its reset) marks its words as it did the first time: forget what it introduced */
   function unsee(words, jumps) {
     if (seen) (words || []).forEach(function (w) { var low = String(w).toLowerCase(), d = defined(low); delete seen[low]; if (d) delete seen[d.toLowerCase()]; });
@@ -202,10 +212,15 @@
       var ctx = (CONTEXT[here] || {})[low];
       var canJump = teaching && !arrowed;
       var pk0 = ctx || PEEK[low];
+      var card = KW[low] || KW[idea];
       if (pk0 && !SHOWN[pk0[0]]) {
         var pk = pk0;
         act = ' data-peek="' + pk[0] + '" data-note="' + esc(pk[1]) + '"' + (pk[2] ? ' data-credit="' + esc(pk[2]) + '"' : '') + ' tabindex="0" role="button"';
         cls = ' is-peek';
+      } else if (teaching && card && def && !KNOWN[def.toLowerCase()]) {
+        /* its key-word card is at the bottom of this station: down to it, not away */
+        act = ' data-kw="' + esc(card.toLowerCase()) + '" tabindex="0" role="button"';
+        cls = ' is-kw';
       } else if (JUMP[low] === here) {
         return '<b class="t t--' + cat + '">' + m + '</b>';
       } else if (canJump && JUMP[low] && GOES_THERE[low] && !(wentTo && wentTo[JUMP[low]])) {

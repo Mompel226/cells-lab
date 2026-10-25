@@ -89,6 +89,12 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .lb__halo{stroke:var(--col-bg);stroke-linecap:butt}
 .lb__lead{stroke:var(--col-ink)}
 .lb__txt{fill:var(--col-ink);stroke:var(--col-bg)}
+/* a word whose key-word card is at the bottom of this station: the faint rule of a definition and a small arrow down,
+   for "down to its card here" (25 Oct 2026) */
+.t.is-kw,.tc.is-kw{cursor:pointer;border-bottom:1px dotted var(--c49);padding-bottom:1px}
+.t.is-kw::after,.tc.is-kw::after{content:"↓";font-size:.72em;vertical-align:.2em;margin-left:1px;opacity:.75}
+.t.is-kw:hover,.tc.is-kw:hover{background:var(--c41);border-radius:3px}
+.t.is-kw:focus-visible,.tc.is-kw:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
 .lb{cursor:pointer}
 .lb__lead,.lb__halo{pointer-events:none}
 .lb:focus-visible{outline:none}
@@ -514,16 +520,26 @@ html[data-lab-tab="do"] .sparts__hits,html[data-lab-tab="do"] .sparts__labs{disp
 .suse__t b{color:var(--accent)}
 .suse__grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:"scope eye" "scope side";gap:6px 10px}
 .suse__scope{grid-area:scope;min-height:0;min-width:0}
+@media (min-width: 621px){
+  .suse__grid.is-wide{grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);grid-template-areas:"scope eye side";align-items:center}
+  .suse__grid.is-wide .suse__scope{height:100%;aspect-ratio:482/852}
+  .suse__grid.is-wide .suse__eye,.suse__grid.is-wide .suse__side{height:100%;justify-content:center}
+  .suse__grid.is-wide .suse__fov,.suse__grid.is-wide .suse__loupe{flex:none;width:100%;aspect-ratio:1;max-height:calc(100% - 3.4em)}
+}
 .suse__svg{width:100%;height:100%;display:block}
 .suse__eye,.suse__side{margin:0;min-height:0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 .suse__eye{grid-area:eye} .suse__side{grid-area:side}
 .suse__fov{position:relative;flex:1;min-height:0;width:100%}
 .suse__fov svg{width:100%;height:100%;display:block}
-.suse__veil{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88%,88cqh);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:16%;box-sizing:border-box;background:rgba(8,12,18,.74);color:#F2F5F8;font-size:13.5px;font-weight:600;line-height:1.35}
+.suse__veil{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88%,88cqh);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:15%;box-sizing:border-box;background:rgba(8,12,18,.74);color:#F2F5F8;font-size:clamp(12px,14cqh,20px);font-weight:700;line-height:1.2;overflow:hidden}
 .suse__fov{container-type:size}
 .suse__loupe{flex:1;min-height:0;width:100%}
 .suse__lbg{fill:var(--col-card)}
 .suse__lring{fill:none;stroke:var(--accent);stroke-width:2.2}
+/* the picture to watch while the pupil looks from the side (step 3) */
+.suse__side.is-watch .suse__lring{stroke-width:5}
+.suse__side.is-watch .suse__loupe{filter:drop-shadow(0 0 8px var(--accent))}
+.suse__watch{display:inline-block;padding:1px 7px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-ink, #fff);font-weight:700;font-size:11.5px;letter-spacing:.02em}
 .suse__lsvg{width:100%;height:100%;display:block}
 .suse__eye figcaption,.suse__side figcaption{font-size:12.5px;line-height:1.3;color:var(--col-soft);text-align:center;font-variant-numeric:tabular-nums}
 .suse__eye figcaption b,.suse__side figcaption b{color:var(--col-ink)}
@@ -555,6 +571,16 @@ html[data-lab-tab="do"] .sparts__hits,html[data-lab-tab="do"] .sparts__labs{disp
 .suse__t u{text-decoration-thickness:2px;text-underline-offset:3px}
 @media (prefers-reduced-motion: reduce){ .suse__alarm.is-on,.suse__g.is-wrong{animation:none} }
 .suse__ks{display:none}
+/* a narrow picture column (a 1024 px window, a tablet): the short labels and a smaller step, so the controls take two
+   rows, not four, and the drawings keep their room (25 Oct 2026: at 1024 × 768 they had shrunk to a thumbnail) */
+.suse{container-type:inline-size}
+@container (max-width: 560px){
+  .suse__k{display:none}
+  .suse__ks{display:inline;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--col-soft)}
+  .suse__step{font-size:13px;padding:6px 9px}
+  .suse__ctl{gap:6px 10px}
+  .suse__b{min-width:40px;padding:5px 9px}
+}
 @media (max-width:620px){
   .suse__grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"eye side"}
   .suse__scope{display:none}
