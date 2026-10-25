@@ -1,5 +1,5 @@
 /* ============================================================
-   views/compare.js — station 8's picture: the three cells side by side.
+   views/compare.js — station 9's picture: the three cells side by side.
 
    Two ways to look:
      the parts     the three drawings (the same artist, CC BY 4.0, ribosomes added), about the same size. Choose a

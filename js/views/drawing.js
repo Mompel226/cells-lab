@@ -1,136 +1,200 @@
 /* ============================================================
-   views/drawing.js — station 10's picture: a biological drawing, and its faults one at a time.
+   views/drawing.js — station 11's picture: four pencil drawings of pondweed leaf cells at ×400 (25 Oct 2026).
 
-   The cell is REAL: one cell from the cervix (Mikael Häggström's photograph, CC0), its outline traced from the
-   photograph by computer and its nucleus set on the darker oval in it, for this lab. It is shown as a pupil's
-   pencil drawing beside the photograph it was drawn from. "The good drawing" follows the syllabus's rules and
-   Daniel's checklist; "Next fault" shows the same drawing with ONE rule broken, and "Show me" rings the fault and
-   names the rule. Never onion epidermis (memory never-do-the-assessment): the rules, not the report.
+   Drawing D follows every rule of Daniel's Year 9 rubric and of the 0610 schemes: several cells, each touching the
+   cells next to it; one clear, unbroken line for each edge, no shading; each cell wall drawn as two lines (a band);
+   ruled, level label lines that touch their parts, outside the drawing, no arrowheads, never crossing; four labels;
+   "Magnification used: ×400" under it, with the actual length of one cell and a scale bar. Drawings A, B and C each
+   break three rules (the Practise tab asks which):
+     A  sketchy lines with gaps · shading · arrowheads on the label lines
+     B  cells drawn apart, with gaps · two cells drawn over each other · each wall one thin line
+     C  two label lines that cross · a label line that stops short · no magnification
+   Never onion (memory never-do-the-assessment): these are pondweed cells, and nothing here is the Year 9 product.
+   The view shows D, and a sentence opened in the text rings the part of D it is about. The questions show A, B and C
+   themselves ('pencil#A' …), so a phone shows the drawing beside its question.
 
-   spec: { kind:'drawing', photo, outline:[[x,y]…] (photo px), nucleus:{cx,cy,rx,ry,rot}, faults:[{ id, name, rule }] }
+   One cell is drawn 1.6 units to the micrometre: the long ones are 240 units, 150 µm; the 100 µm scale bar is 160.
    ============================================================ */
 (function (global) {
   'use strict';
-  var NS = 'http://www.w3.org/2000/svg';
-  function el(tag, attrs, parent) {
-    var e = document.createElementNS(NS, tag);
-    Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
-    if (parent) parent.appendChild(e);
-    return e;
-  }
+  function f2(v) { return Math.round(v * 100) / 100; }
   function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
-  /* a closed smooth path through the traced points (Catmull–Rom as cubic Béziers) */
-  function smooth(pts) {
-    var n = pts.length, d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
-    for (var i = 0; i < n; i++) {
-      var p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
-      d += 'C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ' ' + (p1[1] + (p2[1] - p0[1]) / 6).toFixed(1) + ' ' +
-           (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ' ' + (p2[1] - (p3[1] - p1[1]) / 6).toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
-    }
+  var K = 1.6, T = 3.6;                       /* units per µm; half the thickness of a wall */
+  var Y0 = 96, RH = 64;                        /* the top of the group; the height of a row (40 µm) */
+  /* the group: each row's walls, left to right (x of the middle of each wall) */
+  var ROWS = [[78, 292, 398], [56, 166, 406], [88, 334, 382], [62, 222, 402], [74, 260, 392], [58, 138, 378]];
+  var NUC = [[1, 1, 0.3], [3, 0, 0.62]];       /* [row, cell, where along it]: the cells whose nucleus can be seen */
+
+  function rr(x, y, w, hh, r) {               /* a rounded rectangle as a path */
+    r = Math.min(r, w / 2, hh / 2);
+    return 'M' + f2(x + r) + ' ' + f2(y) + 'H' + f2(x + w - r) + 'Q' + f2(x + w) + ' ' + f2(y) + ' ' + f2(x + w) + ' ' + f2(y + r) +
+      'V' + f2(y + hh - r) + 'Q' + f2(x + w) + ' ' + f2(y + hh) + ' ' + f2(x + w - r) + ' ' + f2(y + hh) + 'H' + f2(x + r) +
+      'Q' + f2(x) + ' ' + f2(y + hh) + ' ' + f2(x) + ' ' + f2(y + hh - r) + 'V' + f2(y + r) + 'Q' + f2(x) + ' ' + f2(y) + ' ' + f2(x + r) + ' ' + f2(y) + 'Z';
+  }
+  /* every cell: its inner outline (the wall's inner edge), as x, y, width, height */
+  function cells(inset) {
+    var out = [];
+    ROWS.forEach(function (w, r) {
+      for (var i = 0; i + 1 < w.length; i++) out.push({ r: r, i: i, x: w[i] + inset, y: Y0 + r * RH + inset, w: w[i + 1] - w[i] - 2 * inset, h: RH - 2 * inset });
+    });
+    return out;
+  }
+  /* the outer edge of the group's walls: a stepped outline round the rows, T outside their outer walls */
+  function groupOutline() {
+    var L = [], R = [];
+    ROWS.forEach(function (w, r) { var y0 = Y0 + r * RH - T, y1 = Y0 + (r + 1) * RH + T; L.push([w[0] - T, y0, y1]); R.push([w[w.length - 1] + T, y0, y1]); });
+    var d = 'M' + f2(L[0][0]) + ' ' + f2(L[0][1]) + 'H' + f2(R[0][0]);
+    R.forEach(function (s, i) { d += 'V' + f2(i + 1 < R.length ? Y0 + (i + 1) * RH : s[2]); if (i + 1 < R.length) d += 'H' + f2(R[i + 1][0]); });
+    d += 'H' + f2(L[L.length - 1][0]);
+    for (var i = L.length - 1; i >= 0; i--) { d += 'V' + f2(i > 0 ? Y0 + i * RH : L[0][1]); if (i > 0) d += 'H' + f2(L[i - 1][0]); }
     return d + 'Z';
   }
-  /* the same outline drawn the way a hurried pupil draws it: many short strokes that do not join */
-  function sketchy(pts) {
-    var d = '', n = pts.length, seed = 7;
-    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280 - 0.5; }
-    for (var i = 0; i < n; i++) {
-      var a = pts[i], b = pts[(i + 1) % n];
-      for (var s = 0; s < 2; s++) d += 'M' + (a[0] + rnd() * 10).toFixed(1) + ' ' + (a[1] + rnd() * 10).toFixed(1) + 'L' + (b[0] + rnd() * 10).toFixed(1) + ' ' + (b[1] + rnd() * 10).toFixed(1);
+  /* the chloroplasts along both long walls of a cell, as small ovals */
+  function chloro(c, r) {
+    var out = [];
+    for (var x = c.x + 12 + r() * 6; x < c.x + c.w - 12; x += 17 + r() * 5) {
+      out.push([x, c.y + 8 + r() * 2.5]);
+      out.push([x + 6, c.y + c.h - 8 - r() * 2.5]);
     }
-    return d;
+    return out;
+  }
+  function nucleusOf(c, k) { return [c.x + c.w * k, c.y + c.h / 2 + 1]; }
+
+  var LX = 432;                                 /* where the labels stand */
+  /* the parts each label touches, in D (and A, C): [text, x, y] */
+  function labelPoints(cs) {
+    var c0 = cs[0], c2 = cs.filter(function (c) { return c.r === 1 && c.i === 1; })[0], nC = cs.filter(function (c) { return c.r === 3 && c.i === 0; })[0], cy = cs.filter(function (c) { return c.r === 4 && c.i === 1; })[0];
+    var nu = nucleusOf(nC, 0.62);
+    return [
+      ['cell wall', ROWS[0][2] + T, Y0 + 26],
+      ['chloroplast', c2.x + c2.w - 30, c2.y + 8],
+      ['nucleus', nu[0] + 13, nu[1]],
+      ['cytoplasm', cy.x + cy.w - 3, cy.y + cy.h - 15]
+    ];
+  }
+
+  /* one drawing, as the inside of a 600 × 640 svg */
+  function drawing(which) {
+    var r = rng(5), s = '', lines = '', marks = '';
+    s += '<rect class="dw-paper" x="0" y="0" width="600" height="640"/><text class="dw-title" x="30" y="34">Drawing ' + which + (which === 'D' ? ' · follows every rule' : '') + '</text>';
+    s += '<rect class="dw-box" x="22" y="48" width="556" height="574"/>';
+    var cs = cells(which === 'B' ? 9 : T), pts = labelPoints(cells(T));
+    if (which === 'B') {
+      /* each cell drawn apart, one thin line each; the cell of row 2 drawn over its neighbour */
+      cs.forEach(function (c) {
+        var dy = (c.r === 2 && c.i === 0) ? -26 : 0, dx = (c.r === 2 && c.i === 0) ? 18 : 0;
+        lines += '<path class="dw-pen" d="' + rr(c.x + dx, c.y + dy, c.w, c.h, 6) + '"/>';
+      });
+    } else if (which === 'A') {
+      /* the same cells, each edge drawn three times, a little apart, with gaps */
+      cs.forEach(function (c) {
+        for (var k = 0; k < 3; k++) {
+          var j = function () { return (r() - 0.5) * 4.5; };
+          lines += '<path class="dw-pen dw-sketch" stroke-dasharray="' + (30 + k * 11) + ' ' + (5 + k * 3) + '" d="' + rr(c.x + j(), c.y + j(), c.w + j(), c.h + j(), 6) + '"/>';
+        }
+      });
+      for (var k2 = 0; k2 < 2; k2++) lines += '<path class="dw-pen dw-sketch" stroke-dasharray="' + (40 + k2 * 13) + ' 7" d="' + groupOutline().replace(/(\d+\.?\d*) (\d+\.?\d*)/g, function (m, a, b) { return f2(+a + (r() - 0.5) * 3.5) + ' ' + f2(+b + (r() - 0.5) * 3.5); }) + '"/>';
+    } else {
+      cs.forEach(function (c) { lines += '<path class="dw-pen" d="' + rr(c.x, c.y, c.w, c.h, 6) + '"/>'; });
+      lines += '<path class="dw-pen" d="' + groupOutline() + '"/>';
+    }
+    /* chloroplasts and nuclei */
+    var rc = rng(11);
+    cs.forEach(function (c) {
+      var dy = (which === 'B' && c.r === 2 && c.i === 0) ? -26 : 0, dx = (which === 'B' && c.r === 2 && c.i === 0) ? 18 : 0;
+      chloro(c, rc).forEach(function (p) {
+        marks += '<ellipse class="dw-pen' + (which === 'A' ? ' dw-fill' : '') + '" cx="' + f2(p[0] + dx) + '" cy="' + f2(p[1] + dy) + '" rx="5.2" ry="3"/>';
+      });
+    });
+    NUC.forEach(function (n) {
+      var c = cs.filter(function (x) { return x.r === n[0] && x.i === n[1]; })[0]; if (!c) return;
+      var p = nucleusOf(c, n[2]);
+      marks += '<ellipse class="dw-pen' + (which === 'A' ? ' dw-fill' : '') + '" cx="' + f2(p[0]) + '" cy="' + f2(p[1]) + '" rx="13" ry="9"/>';
+    });
+    if (which === 'A') {
+      /* shading: the cells hatched over, the pencil pressed hard */
+      var hatch = '';
+      for (var x = 40; x < 470; x += 9) hatch += 'M' + x + ' ' + (Y0 - 4) + 'l-70 ' + (6 * RH + 8);
+      s += '<defs><clipPath id="dwA"><path d="' + groupOutline() + '"/></clipPath></defs><path class="dw-hatch" clip-path="url(#dwA)" d="' + hatch + '"/>';
+    }
+    s += '<g>' + lines + marks + '</g>';
+    /* the labels */
+    var lab = '';
+    var P = which === 'B' ? [['cell wall', ROWS[0][2] - 9, Y0 + 26], ['chloroplast', pts[1][1], pts[1][2] + 1], ['nucleus', pts[2][1], pts[2][2]]] :
+            which === 'C' ? pts.slice(0, 3) : pts;
+    P.forEach(function (p, i) {
+      var y = p[2], x0 = p[1], ty = y;
+      if (which === 'C' && i < 2) ty = P[1 - i][2];                    /* two lines swapped: they cross */
+      if (which === 'C' && i === 2) x0 = p[1] + 26;                      /* the nucleus line stops short */
+      lab += '<line class="dw-lead"' + (which === 'A' ? ' marker-start="url(#dwArr)"' : '') + ' x1="' + f2(x0) + '" y1="' + f2(y) + '" x2="' + (LX - 6) + '" y2="' + f2(ty) + '"/>' +
+        '<text class="dw-lab" x="' + LX + '" y="' + f2(ty + 6) + '">' + p[0] + '</text>';
+    });
+    if (which === 'A') s += '<defs><marker id="dwArr" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M10 0 L0 5 L10 10 z" class="dw-arr"/></marker></defs>';
+    s += lab;
+    /* under the drawing */
+    if (which !== 'C') s += '<text class="dw-note" x="40" y="' + (Y0 + 6 * RH + 52) + '">Magnification used: ×400</text>';
+    if (which === 'D') {
+      var by = Y0 + 6 * RH + 100;
+      s += '<text class="dw-note" x="40" y="' + (Y0 + 6 * RH + 84) + '">Actual length of one cell: 150 µm</text>';
+      s += '<line class="dw-bar" x1="330" y1="' + by + '" x2="490" y2="' + by + '"/><line class="dw-bar" x1="330" y1="' + (by - 7) + '" x2="330" y2="' + (by + 7) + '"/><line class="dw-bar" x1="490" y1="' + (by - 7) + '" x2="490" y2="' + (by + 7) + '"/>' +
+        '<text class="dw-note" x="410" y="' + (by - 14) + '" text-anchor="middle">100 µm</text>';
+    }
+    return s;
+  }
+  /* where a sentence of the text rings drawing D: [cx, cy, rx, ry] */
+  var RINGS = {
+    cells: [232, Y0 + 3 * RH, 210, 3 * RH + 26],
+    lines: [ROWS[2][1], Y0 + 2.5 * RH, 40, 50],
+    wall: [ROWS[3][1], Y0 + 3.5 * RH, 24, 36],
+    labels: [LX - 20, Y0 + 2.6 * RH, 60, 2.6 * RH],
+    mag: [200, Y0 + 6 * RH + 76, 190, 52]
+  };
+
+  function svgOf(which, extra, cls) {
+    return '<svg class="dw-svg ' + (cls || '') + '" viewBox="0 0 600 640" role="img" aria-label="' + (which === 'D' ? 'Drawing D: a biological drawing of pondweed leaf cells that follows every rule.' :
+      'Drawing ' + which + ': a drawing of pondweed leaf cells that breaks three rules.') + '">' + drawing(which) + (extra || '') + '</svg>';
   }
 
   function make(spec, ctx) {
-    var root = h('div', 'drw');
-    var bar = h('div', 'vbar');
-    var goodB = h('button', 'cellv__mode', 'The good drawing'); goodB.type = 'button';
-    var nextB = h('button', 'cellv__mode', 'Next fault ▸'); nextB.type = 'button';
-    var showB = h('button', 'vbtn drw__show', 'Show me the fault'); showB.type = 'button';
-    bar.appendChild(goodB); bar.appendChild(nextB); bar.appendChild(showB);
-    var row = h('div', 'drw__row');
-    var photo = h('figure', 'drw__photo');
-    var pim = new Image(); pim.src = 'assets/photos/' + spec.photo; pim.alt = 'The photograph the drawing was made from: one flat cell from the cervix, stained blue, with its nucleus.';
-    photo.appendChild(pim); photo.appendChild(h('figcaption', null, 'The photograph'));
-    var svg = el('svg', { class: 'drw__svg', viewBox: '0 0 760 640', role: 'img' });
-    /* the sheet takes the column's width; the photograph sits in its empty top right corner (8 Oct 2026: side by side,
-       both were small) */
-    var paper = h('div', 'drw__paper');
-    paper.appendChild(svg); paper.appendChild(photo); row.appendChild(paper);
-    var say = h('p', 'drw__say'); say.setAttribute('aria-live', 'polite');
-    root.appendChild(bar); root.appendChild(row); root.appendChild(say);
-
-    var ON = spec.outline, NU = spec.nucleus;
-    var k = -1, shown = false, order = spec.faults.map(function (f, i) { return i; });
+    var root = h('div', 'dwv');
+    var bar = h('div', 'vbar dwv__bar', '<span class="dwv__k">Drawing</span>');
+    var cur = 'D', ring = null;
+    var btns = ['A', 'B', 'C', 'D'].map(function (w) {
+      var b = h('button', 'cellv__mode', w === 'D' ? 'D ✓' : w); b.type = 'button';
+      b.setAttribute('aria-pressed', w === cur ? 'true' : 'false');
+      b.addEventListener('click', function () { cur = w; ring = null; paint(); });
+      bar.appendChild(b);
+      return b;
+    });
+    var paper = h('div', 'dwv__paper');
+    var say = h('p', 'dwv__say'); say.setAttribute('aria-live', 'polite');
+    root.appendChild(bar); root.appendChild(paper); root.appendChild(say);
     function paint() {
-      var f = k < 0 ? null : spec.faults[order[k]], id = f ? f.id : '';
-      goodB.setAttribute('aria-pressed', k < 0 ? 'true' : 'false');
-      nextB.setAttribute('aria-pressed', k < 0 ? 'false' : 'true');   /* a fault is showing: say which mode is on */
-      showB.hidden = k < 0;
-      svg.innerHTML = '';
-      /* the drawing: the traced cell, scaled into the drawing space (small for the "too small" fault) */
-      var narrow0 = !!(global.matchMedia && global.matchMedia('(max-width: 620px)').matches);
-      var s = id === 'small' ? 0.5 : narrow0 ? 1.25 : 1.45, ox = id === 'small' ? 150 : 40, oy = id === 'small' ? 200 : narrow0 ? 60 : 30;
-      var g = el('g', { transform: 'translate(' + ox + ' ' + oy + ') scale(' + s + ') translate(-90 -60)', class: 'drw__pencil' }, svg);
-      if (id === 'sketchy') el('path', { d: sketchy(ON), class: 'drw__line drw__line--sketch' }, g);
-      else el('path', { d: smooth(ON), class: 'drw__line' + (id === 'shading' ? ' drw__line--shade' : '') }, g);
-      if (id === 'shading') {
-        /* the hatching in the drawing's own (photograph) units, clipped to the outline in the same units: drawn and
-           clipped once, so it stays inside the cell (8 Oct 2026: the clip was scaled twice and the lines ran outside) */
-        var hatch = el('g', { class: 'drw__hatch', 'clip-path': 'url(#drwclip)' }, g);
-        var cp = el('clipPath', { id: 'drwclip' }, el('defs', {}, svg)); el('path', { d: smooth(ON) }, cp);
-        for (var x = 60; x < 600; x += 8) el('line', { x1: x, y1: 50, x2: x - 190, y2: 460, class: 'drw__hatchl' }, hatch);
-      }
-      el('ellipse', { cx: NU.cx, cy: NU.cy, rx: NU.rx, ry: NU.ry, transform: 'rotate(' + NU.rot + ' ' + NU.cx + ' ' + NU.cy + ')', class: 'drw__line' + (id === 'shading' ? ' drw__nuc--shade' : '') }, g);
-      /* the labels: ruled, level, touching their part, outside the drawing (unless the fault says otherwise) */
-      function P(x, y) { return [ox + s * (x - 90), oy + s * (y - 60)]; }
-      var parts = [['cell membrane', P(399, 262)], ['nucleus', P(NU.cx + NU.rx * 0.6, NU.cy)], ['cytoplasm', P(330, 340)]];
-      /* the small drawing breaks ONE rule: its three points are far enough apart for level label lines, as in the good drawing */
-      if (id === 'small') parts = [['cell membrane', P(276, 127.1)], ['nucleus', P(NU.cx + NU.rx * 0.6, NU.cy)], ['cytoplasm', P(250, 410)]];
-      var narrow = !!(global.matchMedia && global.matchMedia('(max-width: 620px)').matches);   /* larger words on a phone */
-      svg.setAttribute('viewBox', narrow ? '0 0 800 640' : '0 0 760 640');   /* room for the larger words */
-      var LX = id === 'small' ? 345 : narrow ? 470 : 560;   /* the small drawing's labels stay clear of the photograph in the corner */
-      parts.forEach(function (pt, i) {
-        var tx = LX, ty = pt[1][1], x0 = pt[1][0];
-        if (id === 'cross' && i < 2) { ty = parts[1 - i][1][1]; }               /* two lines swapped: they cross */
-        if (id === 'inside') { el('text', { x: x0 - 20, y: pt[1][1] - 8, class: 'drw__lab', 'text-anchor': 'end' }, svg).textContent = pt[0]; return; }
-        var endX = id === 'short' && i === 0 ? x0 + 34 : x0;                       /* a line that stops short of its part */
-        el('line', { x1: endX, y1: pt[1][1], x2: tx - 8, y2: ty, class: 'drw__lead' }, svg);
-        if (id === 'arrows') el('path', { d: 'M' + endX + ' ' + pt[1][1] + 'l14 -6v12z', class: 'drw__arrow' }, svg);
-        el('text', { x: tx, y: ty + 5, class: 'drw__lab' }, svg).textContent = pt[0];
-      });
-      if (id !== 'nomag') el('text', { x: id === 'small' ? 150 : 40, y: 625, class: 'drw__mag' }, svg).textContent = 'magnification ×500';
-      /* the ring round the fault, once asked for */
-      if (f && shown && f.ring) {
-        /* the rings are written for the laptop drawing (scale 1.45, top 30); on a phone the cell is drawn at 1.25 from 60,
-           so a ring on the cell moves with it. The crossing ring is placed where the two lines really cross. */
-        var rg = f.ring.slice();
-        if (narrow0 && id !== 'nomag' && id !== 'small') {
-          var q = 1.25 / 1.45;
-          rg = [40 + (rg[0] - 40) * q, 60 + (rg[1] - 30) * q, rg[2] * q, rg[3] * q];
-        }
-        if (id === 'cross') {
-          var a0 = parts[0][1], b0 = parts[1][1], ax = LX - 8, ay = b0[1], bx = LX - 8, by = a0[1];
-          var d = (a0[0] - ax) * (b0[1] - by) - (a0[1] - ay) * (b0[0] - bx);
-          if (Math.abs(d) > 1e-6) {
-            var u = ((a0[0] - b0[0]) * (b0[1] - by) - (a0[1] - b0[1]) * (b0[0] - bx)) / d;
-            rg = [a0[0] + u * (ax - a0[0]), a0[1] + u * (ay - a0[1]), rg[2], rg[3]];
-          }
-        }
-        el('ellipse', { cx: rg[0], cy: rg[1], rx: rg[2], ry: rg[3], class: 'drw__ring' }, svg);
-      }
-      var which = k < 0 ? '' : 'Fault ' + (k + 1) + ' of ' + order.length + ': ';
-      say.innerHTML = k < 0 ? '<b>The good drawing.</b> ' + spec.good : shown ? '<b>' + which + f.name + '.</b> ' + f.rule : '<b>' + which.replace(/: $/, '.') + '</b> What is wrong with this drawing? Look first, then press "Show me the fault".';
-      api.say = k < 0 ? 'A good biological drawing of one cell, traced from the photograph beside it' : 'The same drawing with one rule broken';
+      var rg = ring && cur === 'D' ? '<ellipse class="drw__ring" cx="' + RINGS[ring][0] + '" cy="' + RINGS[ring][1] + '" rx="' + RINGS[ring][2] + '" ry="' + RINGS[ring][3] + '"/>' : '';
+      paper.innerHTML = svgOf(cur, rg);
+      btns.forEach(function (b, i) { b.setAttribute('aria-pressed', 'ABCD'[i] === cur ? 'true' : 'false'); });
+      say.innerHTML = cur === 'D' ? '<b>Drawing D follows every rule.</b> Several cells, each touching the next; one clear line for each edge; each wall a band of two lines; ruled labels; the magnification used, the actual length of one cell and a scale bar.'
+        : '<b>Drawing ' + cur + ' breaks three rules.</b> Compare it with drawing D. Which three? The Practise tab asks.';
+      api.say = cur === 'D' ? 'Drawing D: pondweed leaf cells drawn by every rule' : 'Drawing ' + cur + ': pondweed leaf cells, with three mistakes';
       ctx.caption();
     }
-    goodB.addEventListener('click', function () { k = -1; shown = false; paint(); });
-    nextB.addEventListener('click', function () { k = (k + 1) % order.length; shown = false; paint(); });
-    showB.addEventListener('click', function () { shown = true; paint(); });
-    var api = { el: root, say: '', credit: spec.credit, labels: {}, focus: function () {}, stop: function () {} };
-    if (global.matchMedia) { var mq = global.matchMedia('(max-width: 620px)'); if (mq.addEventListener) mq.addEventListener('change', function () { paint(); }); }
+    var api = {
+      el: root, say: '', credit: 'Drawings: made for this lab, of pondweed leaf cells at ×400',
+      labels: { cells: 'the cells', lines: 'the lines', wall: 'the cell walls', labels: 'the labels', mag: 'the magnification' },
+      focus: function (part) {
+        var p = [].concat(part || [])[0];
+        if (RINGS[p]) { cur = 'D'; ring = p; } else ring = null;
+        paint();
+      },
+      stop: function () {}
+    };
     paint();
     return api;
   }
   global.Views.add('drawing', make);
+
+  /* the drawings, for a question to show beside its prompt: 'pencil#A', 'pencil#B', 'pencil#C', 'pencil#D' */
+  global.CircLearn.diagram('pencil', function (v) { return /^[ABCD]$/.test(v) ? svgOf(v, '', 'dw-fig') : ''; });
 })(window);

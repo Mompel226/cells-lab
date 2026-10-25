@@ -1,5 +1,5 @@
 /* ============================================================
-   views/specialised.js — station 9's picture: seven specialised cells, each doing its job.
+   views/specialised.js — station 10's picture: seven specialised cells, each doing its job.
 
    One cell at a time, large, as a real micrograph (the sperm cell is the one drawing: no free photograph of one
    was good enough, and it says so). One ruled label points at the feature that does the job, and under the

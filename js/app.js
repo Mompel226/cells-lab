@@ -199,6 +199,9 @@
 
   function paintPanel() {
     var st = S[current]; if (!st) return;
+    /* which tab is open, for a picture that must change on Practise (the microscope's names hide there: they would
+       answer its quiz; the measuring picture shows no working), 25 Oct 2026 */
+    document.documentElement.setAttribute('data-lab-tab', tab);
     var host = document.getElementById('panelInner'), sc = stationScore(current);
     parkSim();                                      /* out of the panel before it is emptied */
     if (window.CircLearn && CircLearn.dropPlateHold) CircLearn.dropPlateHold();   /* a part pressed on the old panel lets go */

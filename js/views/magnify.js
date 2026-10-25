@@ -1,7 +1,7 @@
 /* ============================================================
-   views/magnify.js — station 3's picture: one cheek cell, many sizes.
+   views/magnify.js — station 4's picture: one cheek cell, many sizes.
 
-   The cheek cell is the one a pupil makes on a slide in station 2 (Daliasalloum's photograph, methylene
+   The cheek cell is one of those stained in station 3's photograph (Daliasalloum's photograph, methylene
    blue, CC BY 4.0; turned so that its length P–Q lies level, and cut out for this lab). A clear ruler lies
    along P–Q. The slider enlarges the PICTURE; the ruler does not change, because a millimetre is a
    millimetre. So the image size grows, the actual size stays the same, and the magnification, worked out
@@ -12,7 +12,13 @@
    formula. Nothing here claims to be a measurement of this particular cell: a cheek cell is ABOUT
    0.06 mm long (spec.actual), and the view says so.
 
-   spec: { kind:'magnify', img:'cheek-cell.jpg', w, h, P:[x,y], Q:[x,y], actual: 0.06, from: 24, to: 96, step: 3, start: 60 }
+   spec: { kind:'magnify', img:'cheek-cell.jpg', w, h, P:[x,y], Q:[x,y], actual: 0.06, from: 24, to: 96, step: 3, start: 60, card }
+
+   spec.card (25 Oct 2026, the Year 9 practice): a second picture, "Measure a micrograph", the Year 12 microscopy
+   practical's printed page (practicals/A22-microscopy-skills-pract/js/scope.js, ported here): Figure 1, a Paramecium
+   88 mm long with a 50 µm scale bar 20 mm long (so ×400 and 220 µm), and a clear ruler to drag, or to move and turn
+   with the buttons. The page is drawn 4 units to the millimetre, so what the ruler reads is what the questions expect.
+   Nothing is calculated on it: the questions ask for that.
    ============================================================ */
 (function (global) {
   'use strict';
@@ -26,6 +32,55 @@
   function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   /* a number as an exam answer writes it: no trailing zeros, no float noise */
   function num(x) { return String(+x.toPrecision(10)); }
+
+  /* ---------- the printed micrograph (from the Year 12 practical's js/scope.js) ---------- */
+  var MM = 4, PARA = { cx: 300, cy: 250, L: 88 * MM, W: 29 * MM, bar: 20 * MM };
+  function f2(x) { return (Math.round(x * 100) / 100).toString(); }
+  function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function pathOf(pts) { return 'M' + pts.map(function (p) { return f2(p[0]) + ' ' + f2(p[1]); }).join(' L') + ' Z'; }
+  function paramecium() {
+    var cx = PARA.cx, cy = PARA.cy, L = PARA.L, W = PARA.W, P = [], k;
+    for (k = 0; k < 180; k++) {
+      var t = 2 * Math.PI * k / 180, c = Math.cos(t), sn = Math.sin(t);
+      var y = (W / 2) * sn * (1 + 0.16 * c) * (1 - 0.1 * Math.abs(sn));
+      if (sn > 0) y -= 16 * Math.exp(-Math.pow((c + 0.05) / 0.28, 2));      /* the oral groove */
+      P.push([cx + (L / 2) * c, cy + y]);
+    }
+    var r = rng(4), g = '', cil = '';
+    P.forEach(function (p, i) { if (i % 2) return; var q = P[(i + 1) % P.length], dx = q[0] - p[0], dy = q[1] - p[1], m = Math.hypot(dx, dy) || 1; cil += 'M' + f2(p[0]) + ' ' + f2(p[1]) + 'l' + f2(dy / m * 7) + ' ' + f2(-dx / m * 7); });
+    g += '<path class="pm__cil" d="' + cil + '"/><path class="pm" d="' + pathOf(P) + '"/>';
+    for (k = 0; k < 70; k++) { var x = cx + (r() - 0.5) * L * 0.86, yy = cy + (r() - 0.5) * W * 0.62; if (Math.pow((x - cx) / (L / 2), 2) + Math.pow((yy - cy) / (W / 2), 2) < 0.7) g += '<circle class="pm__gr" cx="' + f2(x) + '" cy="' + f2(yy) + '" r="' + f2(1 + r() * 1.6) + '"/>'; }
+    [[-60, -10, 10], [-20, 22, 8], [30, -16, 9], [70, 12, 7], [100, -6, 6], [-95, 14, 7]].forEach(function (v) { g += '<circle class="pm__fv" cx="' + (cx + v[0]) + '" cy="' + (cy + v[1]) + '" r="' + v[2] + '"/>'; });
+    g += '<ellipse class="pm__mn" cx="' + (cx + 4) + '" cy="' + (cy - 4) + '" rx="34" ry="21" transform="rotate(-8 ' + (cx + 4) + ' ' + (cy - 4) + ')"/><circle class="pm__mi" cx="' + (cx + 42) + '" cy="' + (cy + 8) + '" r="5"/>';
+    [[cx + 118, cy - 14], [cx - 124, cy - 10]].forEach(function (v) {
+      var rays = '', x0 = v[0], y0 = v[1];
+      for (var q = 0; q < 7; q++) { var a2 = 2 * Math.PI * q / 7; rays += 'M' + f2(x0 + 8 * Math.cos(a2)) + ' ' + f2(y0 + 8 * Math.sin(a2)) + 'l' + f2(13 * Math.cos(a2)) + ' ' + f2(13 * Math.sin(a2)); }
+      g += '<path class="pm__cv" d="' + rays + '"/><circle class="pm__cvc" cx="' + x0 + '" cy="' + y0 + '" r="8"/>';
+    });
+    return g + '<path class="pm__og" d="M' + (cx + 70) + ' ' + (cy + 30) + ' Q' + (cx + 20) + ' ' + (cy + 46) + ' ' + (cx - 30) + ' ' + (cy + 26) + '"/>';
+  }
+  function rulerG(st) {
+    var len = 120, wid = 16, t = '', n = '', ox = 10;   /* the 0 mark sits 10 units (2.5 mm) in from the ruler's end, as on a real ruler */
+    for (var mm = 0; mm <= len; mm++) {
+      var x = mm * MM, l = mm % 10 === 0 ? 15 : mm % 5 === 0 ? 10 : 6;
+      t += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + l + '"/>';
+      if (mm % 10 === 0) n += '<text x="' + x + '" y="27">' + (mm / 10) + '</text>';
+    }
+    return '<g class="mc-ruler" data-drag="ruler" transform="translate(' + f2(st.rx) + ' ' + f2(st.ry) + ') rotate(' + st.rot + ')">' +
+      '<rect x="' + (-ox) + '" y="-2" width="' + (len * MM + 2 * ox) + '" height="' + (wid * MM) + '" rx="4"/>' + t + n +
+      '<text class="mc-ruler__u" x="' + (len * MM - 2) + '" y="' + (wid * MM - 12) + '">cm</text></g>';
+  }
+  function cardSvg(st) {
+    var x = 18, y = 40, w = 564, hh = 452, bx = 406, by = 418;
+    return '<rect width="600" height="600" class="mc-desk"/>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" class="mc-paper"/>' +
+      '<text class="mc-t" x="' + (x + 18) + '" y="' + (y + 30) + '">Figure 1</text>' +
+      '<rect x="' + (x + 18) + '" y="' + (y + 44) + '" width="' + (w - 36) + '" height="' + (hh - 98) + '" class="mc-mg"/>' +
+      '<g>' + paramecium() + '</g>' +
+      '<rect x="' + bx + '" y="' + by + '" width="' + PARA.bar + '" height="6" class="mc-sbar"/><text class="mc-sbar__t" x="' + (bx + PARA.bar / 2) + '" y="' + (by - 8) + '">50 µm</text>' +
+      '<text class="mc-s" x="' + (x + 18) + '" y="' + (y + hh - 22) + '">A single-celled organism, Paramecium, seen with a light microscope.</text>' +
+      rulerG(st);
+  }
 
   function make(spec, ctx) {
     var VW = 1260, VH = 840, PX = 80, PY = 400, RULER = 110;   /* ruler length in mm */
@@ -98,6 +153,58 @@
     work.setAttribute('aria-live', 'polite');
     root.appendChild(work);
 
+    /* the second picture: a printed micrograph and a ruler (spec.card) */
+    var mode = 'cell', card = null, cst = { rx: 40, ry: 520, rot: 0 }, csvg = null, cctl = null;
+    var modes = null;
+    if (spec.card) {
+      modes = h('div', 'mag__modes');
+      modes.setAttribute('role', 'group'); modes.setAttribute('aria-label', 'Choose a picture');
+      [['cell', 'Enlarge a cell'], ['card', 'Measure a micrograph']].forEach(function (m) {
+        var b = h('button', 'cellv__mode', m[1]); b.type = 'button'; b.setAttribute('data-mode', m[0]);
+        b.addEventListener('click', function () { setMode(m[0]); });
+        modes.appendChild(b);
+      });
+      root.insertBefore(modes, root.firstChild);
+      card = h('div', 'mc');
+      card.innerHTML = '<div class="mc__box"><svg class="mc__svg" viewBox="0 0 600 600" role="img" aria-label="Figure 1, a micrograph of a Paramecium with a 50 µm scale bar, printed as on an exam page, and a clear ruler in millimetres that you can drag."></svg></div>' +
+        '<div class="vbar mc__ctl"><span class="mc__k">Ruler</span>' +
+        '<button type="button" class="suse__b" data-rx="-1" aria-label="Move the ruler 1 mm to the left">◀</button>' +
+        '<button type="button" class="suse__b" data-rx="1" aria-label="Move the ruler 1 mm to the right">▶</button>' +
+        '<button type="button" class="suse__b" data-ry="-1" aria-label="Move the ruler 1 mm up">▲</button>' +
+        '<button type="button" class="suse__b" data-ry="1" aria-label="Move the ruler 1 mm down">▼</button>' +
+        '<button type="button" class="suse__b mc__turn">Turn 90°</button></div>' +
+        '<p class="mc__say">Drag the ruler onto what you measure. Read from its 0 mark: 10 small divisions are 1 cm, so each small division is 1 mm.</p>';
+      root.appendChild(card);
+      csvg = card.querySelector('svg'); cctl = card.querySelector('.mc__ctl');
+      var drawCard = function () { csvg.innerHTML = cardSvg(cst); };
+      var cpt = function (ev) { var p = csvg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(csvg.getScreenCTM().inverse()); };
+      var cdrag = null;
+      csvg.addEventListener('pointerdown', function (ev) {
+        var t = ev.target.closest ? ev.target.closest('[data-drag]') : null; if (!t) return;
+        cdrag = { p: cpt(ev), rx: cst.rx, ry: cst.ry }; try { csvg.setPointerCapture(ev.pointerId); } catch (e) {} ev.preventDefault();
+      });
+      csvg.addEventListener('pointermove', function (ev) {
+        if (!cdrag) return; var q = cpt(ev);
+        cst.rx = Math.max(-300, Math.min(580, cdrag.rx + q.x - cdrag.p.x)); cst.ry = Math.max(-60, Math.min(600, cdrag.ry + q.y - cdrag.p.y)); drawCard();
+      });
+      var cend = function () { cdrag = null; };
+      csvg.addEventListener('pointerup', cend); csvg.addEventListener('pointercancel', cend);
+      Array.prototype.forEach.call(cctl.querySelectorAll('[data-rx],[data-ry]'), function (b) {
+        b.addEventListener('click', function () { cst.rx += (+b.getAttribute('data-rx') || 0) * MM; cst.ry += (+b.getAttribute('data-ry') || 0) * MM; drawCard(); });
+      });
+      cctl.querySelector('.mc__turn').addEventListener('click', function () { cst.rot = cst.rot ? 0 : 90; drawCard(); });
+      drawCard();
+    }
+    function setMode(m) {
+      mode = m;
+      if (!card) return;
+      root.classList.toggle('is-card', m === 'card');   /* css/cells.css shows one picture or the other */
+      Array.prototype.forEach.call(modes.children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mode') === m ? 'true' : 'false'); });
+      api.say = m === 'card' ? 'A micrograph as printed on an exam page, and a clear ruler in millimetres' : 'One cheek cell, and a clear ruler laid along it from P to Q';
+      api.credit = m === 'card' ? 'Drawing: made for the Year 12 microscopy practical, a Paramecium' : 'Photograph: Daliasalloum, Wikimedia Commons, CC BY 4.0 (turned and cut out for this lab)';
+      ctx.caption();
+    }
+
     /* the box lit is always the quantity being calculated (8 Oct 2026 review: the pills and the boxes disagreed) */
     function paint() {
       var k = L * 10 / len;                                   /* picture units per photo pixel */
@@ -127,11 +234,17 @@
       el: root,
       say: 'One cheek cell, and a clear ruler laid along it from P to Q',
       credit: 'Photograph: Daliasalloum, Wikimedia Commons, CC BY 4.0 (turned and cut out for this lab)',
-      labels: { image: 'the image size', actual: 'the actual size', mag: 'the magnification' },
-      focus: function (part) { if (rows[part]) find = part; paint(); },
+      labels: { image: 'the image size', actual: 'the actual size', mag: 'the magnification', bar: 'the scale bar' },
+      focus: function (part) {
+        var p = [].concat(part || [])[0];
+        if (p === 'bar') { setMode('card'); return; }
+        if (p && rows[p]) { if (mode !== 'cell') setMode('cell'); find = p; }
+        paint();
+      },
       stop: function () {}
     };
     paint();
+    if (modes) setMode('cell');
     return api;
   }
 

@@ -34,7 +34,8 @@
             'cellulose', 'partially permeable', 'plant cell', 'plant cells', 'animal cell', 'animal cells', 'bacterial cell', 'bacterial cells',
             'chromosome', 'chromosomes', 'gene', 'genes', 'flagellum', 'flagella', 'capsule'],
     size:  ['light microscope', 'light microscopes', 'microscope', 'microscopes', 'electron microscope', 'eyepiece', 'eyepiece lens', 'objective lens', 'objective lenses',
-            'nosepiece', 'stage', 'condenser', 'focusing knob', 'focusing knobs', 'magnification', 'magnifications', 'total magnification',
+            'nosepiece', 'stage', 'condenser', 'coarse adjustment knob', 'fine adjustment knob', 'adjustment knob', 'adjustment knobs',
+            'iris diaphragm', 'body tube', 'lamp', 'light switch', 'magnification', 'magnifications', 'total magnification',
             'image size', 'actual size', 'millimetre', 'millimetres', 'micrometre', 'micrometres', 'photomicrograph', 'photomicrographs',
             'eyepiece graticule', 'graticule', 'significant figures', 'slide', 'coverslip', 'stain', 'methylene blue', 'scale bar', 'specimen', 'specimens'],
     org:   ['tissue', 'tissues', 'organ', 'organs', 'organ system', 'organ systems', 'organism', 'organisms', 'specialised cell', 'specialised cells',
@@ -74,8 +75,7 @@
   function jump(list, st) { if (BUILT[st]) list.forEach(function (w) { JUMP[w] = st; }); }
   jump(['tissue', 'tissues', 'organ', 'organs', 'organ system', 'organ systems', 'organism', 'organisms'], 'levels');
   /* slide, coverslip and stain are not here: they are explained by their definitions, where they are first used (8 Oct 2026) */
-  jump(['light microscope', 'light microscopes', 'eyepiece', 'eyepiece lens', 'objective lens', 'objective lenses', 'nosepiece', 'condenser',
-        'focusing knob', 'focusing knobs', 'total magnification'], 'microscope');
+  jump(['light microscope', 'light microscopes', 'total magnification'], 'microscope');
   jump(['magnification', 'magnifications', 'image size', 'actual size'], 'magnification');
   jump(['millimetre', 'millimetres', 'micrometre', 'micrometres'], 'units');
   jump(['specialised cell', 'specialised cells', 'ciliated cell', 'ciliated cells', 'cilia', 'root hair cell', 'root hair cells', 'palisade cell', 'palisade cells',

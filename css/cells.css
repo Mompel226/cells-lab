@@ -90,48 +90,17 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .lb__lead{stroke:var(--col-ink)}
 .lb__txt{fill:var(--col-ink);stroke:var(--col-bg)}
 .lb{cursor:pointer}
+.lb__lead,.lb__halo{pointer-events:none}
 .lb:focus-visible{outline:none}
 .lb:focus-visible .lb__txt,.lb:hover .lb__txt{fill:var(--accent)}
 .lb.is-lit .lb__txt{fill:var(--accent);font-weight:700}
 .lb.is-lit .lb__lead{stroke:var(--accent);stroke-width:2.6}
 .lb.is-dim{opacity:.45}
 
-/* ---------- station 2: the microscope ---------- */
-.mscope{flex:1;min-height:0;display:flex;flex-direction:column}
-.mscope__face{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;padding:8px 8px 8px}
 /* a picture's own buttons, in a bar above it */
 .vbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;padding:0 6px 6px}
-.mscope__face[hidden],.mscope__look[hidden]{display:none}
-.mscope__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
-.mscope__veil{fill:var(--on-photo-veil);opacity:0;transition:opacity .35s ease;pointer-events:none}
-.mscope__veil.is-on{opacity:1}
-.mscope__hit{fill:transparent;cursor:pointer}
-.mscope__beam{fill:none;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .3s;pointer-events:none}
-.mscope__beam.is-on{opacity:1}
-.mscope__glow0{stop-color:var(--beam-0)}
-.mscope__glow1{stop-color:var(--beam-1)}
-.mscope__go{flex:none}
-.mscope__look{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:12px;padding:12px 14px 14px;justify-items:center}
-.fov{position:relative;aspect-ratio:1;height:100%;max-height:100%;max-width:100%;border-radius:50%;overflow:hidden;
-  background:var(--fov-ring);box-shadow:0 0 0 10px var(--fov-ring),0 0 0 11px var(--col-line)}
-.fov__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:filter .25s ease}
-.fov__img[hidden]{display:none}
-.mscope__ctl{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 18px;width:100%}
-.nose{display:flex;align-items:center;gap:6px}
-.nose__h,.focus__h{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--col-soft);margin-right:4px}
-.nose__b{font:inherit;font-weight:700;font-size:14px;min-width:52px;padding:6px 10px;border-radius:var(--r-pill);cursor:pointer;
-  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
-.nose__b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
-.focus{display:flex;align-items:center;gap:6px}
-.focus__in{width:150px;accent-color:var(--accent)}
-.mscope__sum{margin:0;width:100%;text-align:center;font-size:14px;line-height:1.45;color:var(--col-ink)}
-.mscope__eq{display:block;font-variant-numeric:tabular-nums}
-.mscope__say{display:block;color:var(--col-soft);font-size:13px}
-.mscope__back{flex:none}
-.mscope__hint{margin:0;width:100%;text-align:center;font-size:13.5px;font-weight:600;color:var(--amber)}
-.mscope__hint[hidden]{display:none}
 
-/* ---------- station 3: one cell, many sizes ---------- */
+/* ---------- station 4: one cell, many sizes ---------- */
 .mag{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 14px 12px}
 .mag__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
 .mag__pqhalo{stroke:var(--on-photo-halo);stroke-width:9;stroke-linecap:round}
@@ -214,7 +183,7 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .hs__stage--fig svg{background:transparent}
 .tip::after,.tip::before{display:none}
 .tip:hover::after,.tip:hover::before,.tip:focus-visible::after,.tip:focus-visible::before,.tip.is-open::after,.tip.is-open::before{display:block}
-@media (prefers-reduced-motion: reduce){ .xcard__a,.mscope__veil,.mscope__beam,.fov__img{transition:none} }
+@media (prefers-reduced-motion: reduce){ .xcard__a{transition:none} }
 
 /* the inks of this lab (js/terms.js) */
 .t--cell{color:var(--k-cell)} .t--size{color:var(--k-size)} .t--org{color:var(--k-org)}
@@ -234,8 +203,20 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
   .platecol[data-kind="compare"] .cmp__svg{flex:none;height:auto}
   .platecol[data-kind="compare"] .cmp__stage{align-items:end}   /* the three names on one line */
   .platecol[data-kind="magnify"] .mag__svg{flex:none;height:auto;aspect-ratio:1260/840}
-  .platecol[data-kind="measure"] .meas__svg{flex:none;height:auto;aspect-ratio:275/125}
-  .platecol[data-kind="drawing"] .drw__row{flex:none}
+  
+  
+  /* the microscope stations' pictures (25 Oct 2026): working tools too, at full width */
+  .platecol[data-kind="scopeparts"],.platecol[data-kind="scopeuse"]{position:relative;height:auto;box-shadow:none}
+  .platecol[data-kind="scopeparts"] .sparts__stage{flex:none}
+  .platecol[data-kind="scopeparts"] .sparts__svg{height:auto}
+  .platecol[data-kind="scopeuse"] .suse__grid{flex:none}
+  .platecol[data-kind="scopeuse"] .suse__fov,.platecol[data-kind="scopeuse"] .suse__loupe{flex:none;aspect-ratio:1}
+  .platecol[data-kind="drawing"] .dwv__paper{flex:none}
+  .platecol[data-kind="drawing"] .dw-svg{height:auto}
+  .platecol[data-kind="measure"] .meas2__box{flex:none}
+  .platecol[data-kind="measure"] .meas2__svg{height:auto;aspect-ratio:1}
+  .platecol[data-kind="magnify"] .mc__box{flex:none}
+  .platecol[data-kind="magnify"] .mc__svg{height:auto;aspect-ratio:1}
 }
 @media (max-width:1000px) and (min-height:561px){
   .mag{gap:5px;padding:6px 10px 8px}
@@ -252,10 +233,10 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 }
 @media (max-width:620px){
   .said{display:none}
-  .mscope__ctl{gap:6px 12px}
-  .focus__in{width:110px}
-  .nose__b{min-width:44px;padding:5px 8px}
-  .mscope__say{display:none}
+  
+  
+  
+  
 }
 
 /* "Check yourself": a yellow highlighter under red-brown words, the same in both versions (a highlighter does not
@@ -308,7 +289,7 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .lev__where{margin:0;font-size:13.5px;color:var(--col-soft);text-align:center;flex:1;min-width:120px}
 .lev__where b{color:var(--col-ink)}
 
-/* ---------- station 4: a ruler you zoom into ---------- */
+/* ---------- station 5: a ruler you zoom into ---------- */
 .units{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px 10px 10px}
 .units__svg{flex:0 1 auto;min-height:0;width:100%;height:auto;aspect-ratio:1000/620;display:block}   /* the words sit right under the picture (8 Oct 2026 review) */
 .units__rbody{fill:var(--ruler-body);stroke:var(--ruler-edge);stroke-width:1.5}
@@ -321,7 +302,7 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .units__sum p{margin:0;text-align:center;font-size:14px;line-height:1.45;color:var(--col-ink)}
 .units__sees{color:var(--col-soft)!important;font-size:13.5px!important}
 
-/* ---------- station 8: three cells compared ---------- */
+/* ---------- station 9: three cells compared ---------- */
 .cmp{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
 .cmp__chips{display:flex;flex-wrap:wrap;gap:5px}
 .cmp__chips[hidden],.cmp__stage[hidden],.cmp__sizes[hidden],.cmp__real[hidden]{display:none}
@@ -361,7 +342,7 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .cmp__barline{display:block;height:6px;border:solid var(--col-ink);border-width:0 2px;background:linear-gradient(var(--col-ink),var(--col-ink)) center/100% 2px no-repeat;min-width:4px;flex:none}
 .cmp__barlab{font-size:12.5px;font-weight:600;color:var(--col-ink);white-space:nowrap}
 
-/* ---------- station 9: specialised cells ---------- */
+/* ---------- station 10: specialised cells ---------- */
 .spc{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px 10px 10px}
 .spc__svg{flex:1;min-height:0;width:100%;height:100%;display:block}
 .spc__job{margin:0;text-align:center;font-size:14px;line-height:1.45;color:var(--col-ink)}
@@ -372,50 +353,21 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
 .spc__tn{font-size:12px;line-height:1.15;text-align:center;overflow-wrap:anywhere;padding-bottom:2px}
 .spc__t[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint)}
 
-/* ---------- station 10: a drawing and its faults ---------- */
-.drw{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
-.drw__row{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
-.drw__paper{position:relative;width:100%;max-width:100%;aspect-ratio:760/640;max-height:100%}
-.drw__svg{width:100%;height:100%;min-height:0;display:block;background:var(--paper-sheet);border-radius:var(--r);border:1px solid var(--col-line)}
-.drw__photo{position:absolute;top:3%;right:2.5%;width:25%;margin:0;display:flex;flex-direction:column;gap:3px;align-items:center}
-.drw__photo img{width:100%;height:auto;border-radius:6px;display:block;box-shadow:0 0 0 1px var(--col-line)}
-.drw__photo figcaption{font-size:11.5px;color:var(--col-soft)}
-.drw__line{fill:none;stroke:var(--pencil);stroke-width:2.6;stroke-linejoin:round}
-.drw__line--sketch{stroke-width:1.6;stroke-linecap:round}
-.drw__hatchl{stroke:var(--pencil);stroke-width:1.3;opacity:.55}
-.drw__nuc--shade{fill:var(--pencil);fill-opacity:.55}
-.drw__lead{stroke:var(--pencil);stroke-width:1.8}
-.drw__arrow{fill:var(--pencil)}
-.drw__lab{font:500 26px var(--font);fill:var(--pencil)}
-.drw__mag{font:500 24px var(--font);fill:var(--pencil)}
 .drw__ring{fill:none;stroke:var(--ruler-span);stroke-width:5;stroke-dasharray:14 8}
-.drw__say{margin:0;font-size:14px;line-height:1.45;color:var(--col-ink);text-align:center;min-height:5.8em}
-.drw__show[hidden]{display:none}
+
 :root{ --paper-sheet:#FBFBF8; --pencil:#2E3338; }
 
-/* ---------- station 11: measuring by counting ---------- */
-.meas{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
-.meas__svg{flex:1;min-height:0;width:100%;height:100%;display:block;border-radius:var(--r)}
-.meas__hit{fill:transparent;cursor:crosshair}
-.meas__halo{stroke:var(--on-photo-halo);stroke-width:7}
-.meas__line{stroke:var(--on-photo-ink);stroke-width:3}
-.meas__lab{font:700 18px var(--font);fill:var(--on-photo-ink);paint-order:stroke;stroke:var(--on-photo-halo);stroke-width:3px;word-spacing:2px}
 .meas__dot{fill:var(--ruler-span);stroke:var(--on-photo-halo);stroke-width:2.5}
-.meas__n{font:700 15px var(--font);fill:var(--on-photo-ink);paint-order:stroke;stroke:var(--on-photo-halo);stroke-width:4px}
-.meas__bar{justify-content:center}
-.meas__work p{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--col-ink)}
-.meas__eq{font-variant-numeric:tabular-nums}
-.meas__note{color:var(--col-soft)!important;font-size:12.5px!important}
 
 /* ---------- phones: each picture keeps its picture first ---------- */
 @media (max-width:1000px) and (min-height:561px){
   .lev__ladder{display:none}
   .lev__main{grid-template-columns:minmax(0,1fr)}
   .spc__tn{display:none}
-  .drw__row{grid-template-columns:minmax(0,1fr)}
-  .drw__photo{display:none}
+  
+  
   .cmp__chips{gap:4px} .cmp__chip{padding:3px 8px;font-size:12px}
-  .units__sees,.drw__say,.meas__note{font-size:12px!important}
+  .units__sees{font-size:12px!important}
   .cellv__mode{padding:4px 9px;font-size:12px}
 }
 /* a phone shows the ruler and the drawing about a third of their desktop size: their words grow to stay readable */
@@ -428,8 +380,8 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
   .gridq thead th{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;padding:6px 3px;font-size:12px;vertical-align:middle;text-align:left}
   .gridq tbody th{min-width:0;font-size:13px}
   .gridq th,.gridq td{padding:5px 4px}
-  .drw__lab{font-size:40px} .drw__mag{font-size:34px}
-  .drw__paper{aspect-ratio:800/640}
+   
+  
 }
 
 /* ---------- 8 Oct 2026 desktop review: the question widgets and the page's text ---------- */
@@ -462,9 +414,7 @@ p,li,dd,figcaption{text-wrap:pretty}
 .lb.is-lit .lb__pinn{fill:var(--on-ink)}
 .lb:hover .lb__pin,.lb:focus-visible .lb__pin{stroke:var(--accent)}
 .lb--key .lb__txt{stroke:none}
-/* "Show me the fault" is the drawing's main button: the lab's filled style */
-.drw__show{background:var(--accent);border-color:var(--accent);color:var(--on-ink)}
-.drw__show:hover{filter:brightness(1.08)}
+
 /* a link out of the lab reads as a button, not as one more badge beside it */
 .later__out{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
 .later__out:hover{background:var(--accent-tint);filter:none}
@@ -481,4 +431,219 @@ p,li,dd,figcaption{text-wrap:pretty}
 .cmp__mark.is-hid{color:var(--amber)}
 /* a heading over a picture (two photographs side by side) */
 .cellv__head{fill:var(--col-ink);font-family:var(--font);font-weight:700;paint-order:stroke;stroke:var(--col-bg);stroke-width:3px;stroke-linejoin:round}
+
+/* ---------- the drawn microscope (js/views/scope.js, 25 Oct 2026): one object, its colours set here for both versions ---------- */
+:root{ --sc-e0:#D2D8DD; --sc-e1:#FFFFFF; --sc-e2:#B9C1C8; --sc-line:#46525D; --sc-dark:#1E262D; --sc-dark-line:#0B1015;
+  --sc-face:#2E3A44; --sc-knurl:#6A7580; --sc-engr:#38424B; --sc-edge:rgba(255,255,255,.2); --sc-crease:rgba(40,52,62,.16); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --sc-e0:#AEB8C1; --sc-e1:#EEF1F4; --sc-e2:#98A3AD; --sc-line:#617080;
+  --sc-dark:#2B3843; --sc-dark-line:#73879A; --sc-face:#3A4855; --sc-knurl:#8D9AA6; } }
+:root[data-theme="dark"]{ --sc-e0:#AEB8C1; --sc-e1:#EEF1F4; --sc-e2:#98A3AD; --sc-line:#617080;
+  --sc-dark:#2B3843; --sc-dark-line:#73879A; --sc-face:#3A4855; --sc-knurl:#8D9AA6; }
+.sc-e0{stop-color:var(--sc-e0)} .sc-e1{stop-color:var(--sc-e1)} .sc-e2{stop-color:var(--sc-e2)}
+.sc-enamel{fill:var(--sc-enamel);stroke:var(--sc-line);stroke-width:1.2}
+.sc-metal{fill:var(--sc-metal);stroke:#5E6872;stroke-width:1}
+.sc-dark,.sc-stage,.sc-knob{fill:var(--sc-dark);stroke:var(--sc-dark-line);stroke-width:1.2}
+.sc-knobface{fill:var(--sc-face);stroke:var(--sc-dark-line);stroke-width:1.2}
+.sc-knobside{fill:var(--sc-dark)}
+.sc-knobedge{fill:none;stroke:var(--sc-dark-line);stroke-width:1.2}
+.sc-ridge{fill:none;stroke:var(--sc-knurl);stroke-width:2.2;stroke-linecap:round}
+.sc-rib{fill:none;stroke:var(--sc-knurl);stroke-width:2}
+.sc-swmark{fill:none;stroke:#E8ECEF;stroke-width:2.6;stroke-linecap:round}
+.sc-lamp{fill:#C9D1D8;stroke:var(--sc-dark-line);stroke-width:1}
+.sc-lamp.is-on{fill:#FFF3B8;stroke:#E0B43A;filter:drop-shadow(0 0 6px #FFD54F)}
+.sc-glow{fill:var(--sc-glow);pointer-events:none}
+.sc-crease{fill:none;stroke:var(--sc-crease);stroke-width:2}
+.sc-shade{fill:none;stroke:var(--sc-crease);stroke-width:9;stroke-linecap:round}
+.sc-knurl{fill:none;stroke:var(--sc-knurl);stroke-width:3}
+.sc-edge{fill:none;stroke:var(--sc-edge);stroke-width:2}
+.sc-glass{fill:var(--sc-glassfill)}
+.sc-lever{fill:none;stroke:var(--sc-dark);stroke-width:5;stroke-linecap:round}
+.sc-clip{fill:none;stroke:#C9CFD5;stroke-width:6;stroke-linecap:round}
+.sc-ring.r4{fill:#D9433B} .sc-ring.r10{fill:#E3B22B} .sc-ring.r40{fill:#4FA3D9}
+.sc-engr{font:700 11px var(--mono);fill:var(--sc-engr)}
+.sc-engr--light{fill:#DDE2E6}
+.sc-obj.is-back{opacity:.5}
+.sc-slide{fill:rgba(205,228,242,.75);stroke:#7FA3B8;stroke-width:.8}
+.sc-cover{fill:rgba(225,240,248,.95)}
+.sc-spec{fill:#4E9A3C}
+.sc-part{transition:opacity .25s ease}
+.sc-svg.is-lit .sc-part:not(.is-lit),.sc-svg.is-lit .sc-objs .sc-obj:not(.is-lit){opacity:.28}
+.sc-part.is-lit,.sc-obj.is-lit{filter:drop-shadow(0 0 6px var(--accent))}
+@media (prefers-reduced-motion: reduce){ .sc-part{transition:none} }
+
+/* ---------- the pondweed leaf down the microscope (js/views/pondweed.js): a specimen, the same in both versions ---------- */
+.pw-dark{fill:#0E1015}
+.pw-rim{fill:none;stroke:#000;stroke-opacity:.55;stroke-width:5}
+.pw-blade{fill:#DDEBC8}
+.pw-mid{fill:#E9F1DC}
+.pw-wall{fill:none;stroke:#7E9A5C;stroke-width:1.1}
+.pw-wall--4{stroke-width:.6;stroke:#9DB47E}
+.pw-wall--40{stroke-width:2.6;stroke:#6E8C4E}
+.pw-chl10{fill:none;stroke:#4E8A2E;stroke-dasharray:2.2 1.6;opacity:.9}
+.pw-chl ellipse{fill:#3F7F26;stroke:#2C5E19;stroke-width:.6}
+.pw-nuc{fill:rgba(160,170,140,.55);stroke:#7A8466;stroke-width:1}
+.pw-edge{fill:none;stroke:#6E8C4E;stroke-width:1.6}
+
+.sc-crack{fill:none;stroke:#C0392B;stroke-width:1.4;stroke-linejoin:round}
+
+/* ---------- station "Parts of the microscope": the names on the drawing ---------- */
+.sparts{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px 8px 8px}
+.sparts__stage{flex:1;min-height:0;position:relative}
+.sparts__svg{width:100%;height:100%;display:block}
+.sparts__hit{fill:transparent;cursor:pointer}
+.sparts__key{list-style:none;margin:0;padding:0 6px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 12px;font-size:13px;line-height:1.3;color:var(--col-ink)}
+.sparts__key[hidden]{display:none}
+/* pins on a laptop: the key in one column beside the picture */
+.sparts.is-beside{display:grid;grid-template-columns:minmax(0,1fr) 200px;grid-template-rows:minmax(0,1fr) auto;align-items:center}
+.sparts.is-beside .sparts__stage{height:100%}
+.sparts.is-beside .sparts__key{grid-template-columns:minmax(0,1fr);padding:0 8px 0 0}
+.sparts.is-beside .sparts__hide{grid-column:1 / -1}
+.sparts__key li{display:flex;align-items:baseline;gap:6px;cursor:pointer}
+.sparts__key li.is-lit{color:var(--accent);font-weight:700}
+.sparts__n{flex:none;display:inline-grid;place-items:center;min-width:1.55em;height:1.55em;border-radius:50%;border:1.3px solid var(--col-ink);font-size:11.5px;font-weight:700}
+.sparts__key li.is-lit .sparts__n{background:var(--accent);border-color:var(--accent);color:var(--on-ink)}
+.sparts__hide{display:none;margin:0;text-align:center;font-size:13.5px;color:var(--col-soft)}
+html[data-lab-tab="do"] .sparts__hide{display:block}
+html[data-lab-tab="do"] .sparts__hits,html[data-lab-tab="do"] .sparts__labs{display:none}
+
+/* ---------- station "Using the microscope": focus it, step by step ---------- */
+.suse{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;padding:8px 10px 10px}
+.suse__step{display:flex;gap:10px;align-items:baseline;margin:0;padding:8px 12px;border-radius:10px;background:var(--col-card);border:1.5px solid var(--accent);font-size:14px;line-height:1.4;color:var(--col-ink)}
+.suse__step.is-done{background:var(--accent-tint)}
+.suse__n{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.suse__t b{color:var(--accent)}
+.suse__grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:"scope eye" "scope side";gap:6px 10px}
+.suse__scope{grid-area:scope;min-height:0;min-width:0}
+.suse__svg{width:100%;height:100%;display:block}
+.suse__eye,.suse__side{margin:0;min-height:0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.suse__eye{grid-area:eye} .suse__side{grid-area:side}
+.suse__fov{position:relative;flex:1;min-height:0;width:100%}
+.suse__fov svg{width:100%;height:100%;display:block}
+.suse__veil{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88%,88cqh);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:16%;box-sizing:border-box;background:rgba(8,12,18,.74);color:#F2F5F8;font-size:13.5px;font-weight:600;line-height:1.35}
+.suse__fov{container-type:size}
+.suse__loupe{flex:1;min-height:0;width:100%}
+.suse__lbg{fill:var(--col-card)}
+.suse__lring{fill:none;stroke:var(--accent);stroke-width:2.2}
+.suse__lsvg{width:100%;height:100%;display:block}
+.suse__eye figcaption,.suse__side figcaption{font-size:12.5px;line-height:1.3;color:var(--col-soft);text-align:center;font-variant-numeric:tabular-nums}
+.suse__eye figcaption b,.suse__side figcaption b{color:var(--col-ink)}
+.suse__lensbox{fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:9 6}
+.suse__beam{fill:none;stroke:#FFD86B;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.82}
+.suse__svg.is-lit .suse__art .sc-part:not(.is-lit){opacity:.35}
+.suse__crackv{fill:none;stroke:#1C1C1C;stroke-width:4;stroke-linejoin:round;opacity:.75}
+.suse__ctl{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;align-items:center}
+.suse__g{display:flex;align-items:center;gap:5px}
+.suse__k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft);margin-right:2px}
+.suse__b{font:inherit;font-weight:700;font-size:14px;min-width:44px;padding:6px 10px;border-radius:var(--r-pill);cursor:pointer;touch-action:manipulation;user-select:none;
+  border:1.5px solid var(--col-line);background:var(--col-card);color:var(--col-ink)}
+.suse__b:hover{border-color:var(--accent)}
+.suse__b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-tint);color:var(--accent)}
+.suse__sw{min-width:52px}
+.suse__sw[aria-pressed="true"]{border-color:#C9A43A;background:#FFE9A0;color:#5A4500}
+.suse__b:disabled{opacity:.45;cursor:not-allowed}
+.suse__msg{margin:0;min-height:2.7em;text-align:center;font-size:13.5px;line-height:1.4;color:var(--col-ink)}
+.suse__msg.is-warn{color:var(--amber);font-weight:600}
+/* a move refused (Daniel, 25 Oct 2026: "a red label, beep, beep, beep … blinking"): a red banner that blinks three times;
+   the control that was pressed shakes once. The same red in both versions: an alarm, not a theme colour. */
+.suse__alarm{display:none;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:#C62828;color:#fff;font-weight:700;font-size:14px;line-height:1.35;box-shadow:0 2px 10px rgba(198,40,40,.35)}
+.suse__alarm.is-on{display:flex;animation:suse-blink .42s steps(1) 6}
+.suse__ai{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fff;color:#C62828;font-weight:800}
+@keyframes suse-blink{50%{background:#FFEBEE;color:#B71C1C}}
+.suse__g.is-wrong{animation:suse-shake .4s ease 1}
+.suse__g.is-wrong .suse__b{border-color:#C62828}
+@keyframes suse-shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.suse__t u{text-decoration-thickness:2px;text-underline-offset:3px}
+@media (prefers-reduced-motion: reduce){ .suse__alarm.is-on,.suse__g.is-wrong{animation:none} }
+.suse__ks{display:none}
+@media (max-width:620px){
+  .suse__grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"eye side"}
+  .suse__scope{display:none}
+  .suse__k{display:none}
+  .suse__ks{display:inline;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--col-soft)}
+  .suse__g:first-child .suse__k{display:none}
+  .suse__step{font-size:13px;padding:6px 9px}
+}
+
+/* ---------- station 4: the printed micrograph and its ruler (js/views/magnify.js spec.card, 25 Oct 2026) ---------- */
+.mag__modes{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.mc{display:none;flex:1;min-height:0;flex-direction:column;gap:6px}
+.mag.is-card .mc{display:flex}
+.mag.is-card .mag__svg,.mag.is-card .mag__row,.mag.is-card .mag__sums,.mag.is-card .mag__find,.mag.is-card .mag__work{display:none}
+.mc__box{flex:1;min-height:0}
+.mc__svg{width:100%;height:100%;display:block;touch-action:none}
+.mc__ctl{justify-content:center;flex-wrap:wrap}
+.mc__k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft)}
+.mc__say{margin:0;text-align:center;font-size:13px;line-height:1.4;color:var(--col-soft)}
+.mc-desk{fill:var(--col-bg)}
+.mc-paper{fill:#FDFDFB;stroke:#D6D8DE;stroke-width:1.2}
+.mc-t{font:700 15px var(--font);fill:#222}
+.mc-s{font:400 12.5px var(--font);fill:#444}
+.mc-mg{fill:#E7E6E0;stroke:#CFCEC7}
+.pm{fill:#D3D2CA;stroke:#5E5D57;stroke-width:1.6}
+.pm__cil{fill:none;stroke:#77766F;stroke-width:.9}
+.pm__gr{fill:#A4A39B}
+.pm__fv{fill:#BDBBB2;stroke:#86847C;stroke-width:1}
+.pm__mn{fill:#97958D;stroke:#6C6A63}
+.pm__mi{fill:#7D7B74}
+.pm__cv{fill:none;stroke:#6C6A63;stroke-width:1.2}
+.pm__cvc{fill:#F2F1EC;stroke:#6C6A63}
+.pm__og{fill:none;stroke:#6C6A63;stroke-width:1.4}
+.mc-sbar{fill:#111}
+.mc-sbar__t{font:600 13px var(--font);fill:#111;text-anchor:middle}
+.mc-ruler{cursor:move}
+.mc-ruler rect{fill:rgba(255,250,222,.9);stroke:#9A8F5C;stroke-width:1.2}
+.mc-ruler line{stroke:#3B3520;stroke-width:1}
+.mc-ruler text{font:500 11px var(--mono);fill:#3B3520;text-anchor:middle}
+.mc-ruler .mc-ruler__u{text-anchor:end}
+
+/* ---------- station 11, Drawing what you see: four pencil drawings (js/views/drawing.js, 25 Oct 2026) ---------- */
+.dwv{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px}
+.dwv__bar{justify-content:center;flex-wrap:wrap}
+.dwv__k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft)}
+.dwv__paper{flex:1;min-height:0}
+.dw-svg{width:100%;height:100%;display:block}
+.svgbox .dw-fig{height:auto;max-height:min(520px,60vh)}
+/* the microscope in a question: tall, so narrower, and the question still fits a screen */
+.hs__stage--fig:has(.sc-fig){max-width:min(100%,330px)}
+/* on a drawing, a ring is pressed only inside the ring itself: the wider press area that helps on a photograph reached
+   over the next part of a drawing (25 Oct 2026, tools/hotspots.mjs) */
+.hs__stage--fig .hs__pt::before{display:none}
+/* the drawn microscope's own parts can be pressed on the Learn tab */
+.sparts__art [data-part]{cursor:pointer}
+.sparts__art [data-part="head"],.sparts__art [data-part="midobj"],html[data-lab-tab="do"] .sparts__art [data-part]{cursor:default}
+.svgbox:has(.sc-fig){max-width:330px;margin-left:auto;margin-right:auto}
+.svgbox .sc-fig{width:100%;height:auto;display:block}
+.dw-paper{fill:var(--paper-sheet);stroke:var(--col-line);stroke-width:1}
+.dw-title{font:600 17px var(--font);fill:var(--pencil)}
+.dw-box{fill:none;stroke:#B9BEC6;stroke-width:1.2}
+.dw-pen{fill:none;stroke:var(--pencil);stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
+.dw-sketch{stroke-width:1.15;opacity:.85}
+.dw-fill{fill:var(--pencil);fill-opacity:.78}
+.dw-hatch{fill:none;stroke:var(--pencil);stroke-width:1.1;opacity:.42}
+.dw-lead{stroke:var(--pencil);stroke-width:1.4}
+.dw-arr{fill:var(--pencil)}
+.dw-lab{font:500 19px var(--font);fill:var(--pencil)}
+.dw-note{font:500 18px var(--font);fill:var(--pencil)}
+.dw-bar{stroke:var(--pencil);stroke-width:3}
+.dwv__say{margin:0;font-size:13.5px;line-height:1.45;text-align:center;color:var(--col-ink);min-height:3em}
+
+/* ---------- station 12: a ruler on the slide at ×100 (js/views/measure.js, 25 Oct 2026) ---------- */
+.meas2{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;padding:8px 10px 10px}
+.meas2__box{flex:1;min-height:0}
+.meas2__svg{width:100%;height:100%;display:block;touch-action:none}
+.meas2__bar{justify-content:center;flex-wrap:wrap}
+.meas2__k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--col-soft)}
+.meas2__ruler{fill:rgba(214,236,250,.5)}
+.meas2__edge{stroke:rgba(40,90,125,.85);stroke-width:3}
+.meas2__name{font:700 17px var(--font);fill:rgba(20,60,90,.9);pointer-events:none}
+.meas2__mm{fill:none;stroke:#C026D3;stroke-width:3}
+.meas2__mmt{font:700 17px var(--font);fill:#86198F;paint-order:stroke;stroke:rgba(255,255,255,.9);stroke-width:4px}
+.meas2__rg{cursor:ew-resize}
+.meas2__mark{fill:rgba(20,26,32,.82)}
+.meas2__row{fill:none;stroke:#C026D3;stroke-width:2.5;stroke-dasharray:7 5}
+.meas2__n{font:700 12px var(--font);fill:#fff;pointer-events:none}
+.meas2__work p{margin:0;text-align:center;font-size:13.5px;line-height:1.5;color:var(--col-ink)}
+.meas2__count{font-variant-numeric:tabular-nums}
+.meas2__eq{font-variant-numeric:tabular-nums}
+html[data-lab-tab="do"] .meas2__eq{display:none}
 

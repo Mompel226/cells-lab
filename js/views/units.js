@@ -1,5 +1,5 @@
 /* ============================================================
-   views/units.js — station 4's picture: a ruler you zoom into.
+   views/units.js — station 5's picture: a ruler you zoom into.
 
    Four steps, each closer than the last: 1 mm, 0.1 mm, 0.01 mm, 0.005 mm. At each
    step the ruler is read twice, in millimetres above and in micrometres below, so the conversion is SEEN:
