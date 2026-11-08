@@ -664,22 +664,45 @@
     var box = L.h('div', 'widget lp');
     box.appendChild(L.head(spec.title || 'Follow the light', spec.ask || 'Press Play. Each step stops until you press Next step.'));
     var S = (spec.steps || []).map(function (s, i) { return { t: i * 4, h: s.h, p: s.p, part: s.part }; });
-    var END = S.length * 4;
+    var END = S.length * 4, MOVE = 2.4;   /* each step: the light moves for MOVE s of its 4 */
+    /* a step's clock (8 Nov 2026, as in the Immunity and Inheritance Labs): a single step stops where its light stops,
+       its band full there; Play all keeps each step's still part */
+    var flow = function (t) { return t; };
+    flow.endOf = function (i) { return i * 4 + MOVE; };
     function view() { var v = global.Plate && global.Plate.current && global.Plate.current(); return v && v.light ? v : null; }
     var sp = L.stepper({
-      steps: S, end: END,
+      steps: S, end: END, flow: flow,
       render: function (t) {
         var v = view(); if (!v) return;
         if (t <= 0) { v.light(0, null); return; }
-        var k = Math.min(S.length - 1, Math.floor(t / 4)), within = Math.min(1, (t - k * 4) / 2.4);
+        var k = Math.min(S.length - 1, Math.floor(t / 4)), within = Math.min(1, (t - k * 4) / MOVE);
         v.light(k + within, S[k].part);
       }
     });
     box.appendChild(sp.bar);
+    /* steps whose lines are marked IGCSE / IB / Beyond: the key above them */
+    if (sp.legend) box.appendChild(sp.legend);
     box.appendChild(sp.list);
     box.appendChild(sp.now);
     sp.paint(0);
     box.__seek = sp.seek;
+    /* in its card (a film card: Daniel, 8 Nov 2026), it plays all its steps as soon as the card opens (Daniel, 4 Nov
+       2026: "as soon as you open that, the full animation should play"), and when the card closes it stops and the
+       light leaves the picture */
+    var waits = 0;
+    (function watchCard() {
+      if (!box.isConnected) { if (++waits < 180) requestAnimationFrame(watchCard); return; }
+      var card = box.closest ? box.closest('.xcard') : null, wasOn = false;
+      if (!card || !global.MutationObserver) return;
+      function react() {
+        var on = card.classList.contains('is-open');
+        if (on && !wasOn) sp.playAll();
+        else if (!on && wasOn) sp.seek(0);
+        wasOn = on;
+      }
+      new MutationObserver(function () { if (box.isConnected) react(); }).observe(card, { attributes: true, attributeFilter: ['class'] });
+      react();
+    })();
     return box;
   });
 

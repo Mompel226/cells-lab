@@ -567,10 +567,22 @@
          (Daniel, 7 Oct 2026: less text beside the picture, one piece open at a time; memory explore-dont-scroll).
          Opening a card shows its part in the picture; a part pressed in the picture opens its card (openGroup). */
       if (typeof b === 'object' && b.head) makeCard(li, b.head);
-      if (offK) offAt[offK].push({ k: typeof b === 'object' && b.near != null ? b.near + 0.5 : i, li: li });
-      else list.appendChild(li);
+      /* a film stands in a card of its own, before or after its sentence (as in the Inheritance and Immunity Labs);
+         beside a sentence in the card below What you need to know, it goes into that card with it (the light path:
+         every sentence of Using the microscope is beyond the syllabus text) */
+      var fb = filmsAt(widgets, 'before', i), fa = filmsAt(widgets, 'after', i);
+      if (offK) {
+        var kk = typeof b === 'object' && b.near != null ? b.near + 0.5 : i;
+        fb.forEach(function (g, j) { offAt[offK].push({ k: kk - .01 * (fb.length - j), li: filmCard(g) }); });
+        offAt[offK].push({ k: kk, li: li });
+        fa.forEach(function (g, j) { offAt[offK].push({ k: kk + .01 * (j + 1), li: filmCard(g) }); });
+      } else {
+        fb.forEach(function (g) { list.appendChild(filmCard(g)); });
+        list.appendChild(li);
+        fa.forEach(function (g) { list.appendChild(filmCard(g)); });
+      }
       /* the thing to press, drag or count sits under the sentence it belongs to */
-      widgets.filter(function (w) { return w.after === i; }).forEach(function (w) {
+      widgets.filter(function (w) { return !w.film && w.after === i; }).forEach(function (w) {
         var el = window.Learn.widget(w, WIDGET_CTX);
         if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
         /* A tall, narrow diagram set under the sentence leaves a column of empty paper beside it.
@@ -583,7 +595,7 @@
         else into.appendChild(el);
       });
     });
-    widgets.filter(function (w) { return w.after == null; }).forEach(function (w) {
+    widgets.filter(function (w) { return w.after == null && w.before == null; }).forEach(function (w) {
       var el = window.Learn.widget(w, WIDGET_CTX);
       if (el && w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
       card.appendChild(el);
@@ -971,6 +983,47 @@
       target.classList.add('flash');
       setTimeout(function () { target.classList.remove('flash'); }, 2800);
     }
+  }
+
+  /* ---------- a film (a step animation) in a card of its own ----------
+     Daniel, 8 Nov 2026, Inheritance Lab: "put the animation as a different kind of tab that has a different background";
+     "wherever you have a heavy animation … on its own kind of collapsible menu, and then anything else that they need to
+     know … is just text"; then for every lab: "I would like to apply this system … just to standardize things". The
+     card's heading is the film's own title, with its number of steps; it opens and closes like a sentence's card, one open
+     at a time, and the film plays all as soon as it opens (WKit.mount). Spec: { type, film: true, after: i } (or before: i).
+     Films that share a `card` name go into ONE card, in the master's order: the Immunity Lab's first meeting, its switch and its two versions (none in this lab yet). */
+  function filmsAt(widgets, side, i) {
+    var out = [], named = {};
+    widgets.filter(function (w) { return w.film && w[side] === i; }).forEach(function (w) {
+      if (!w.card) { out.push([w]); return; }
+      if (!named[w.card]) { named[w.card] = []; out.push(named[w.card]); }
+      named[w.card].push(w);
+    });
+    return out;
+  }
+  function filmCard(ws) {
+    var li = document.createElement('li'), title = '', n = 0, twins = 0;
+    ws.forEach(function (w) {
+      var el = window.Learn.widget(w, WIDGET_CTX);
+      if (!el) return;
+      if (w.anchor && el.setAttribute) el.setAttribute('data-anchor', w.anchor);
+      li.appendChild(el);
+      var steps = el.querySelector ? el.querySelector('.sp__steps') : null;
+      if (!steps) return;
+      if (el.hidden) { twins++; return; }
+      if (!title) {
+        /* the heading's own words, without its buttons (Reset) or its "Press play" */
+        var hd = el.querySelector('.widget__h');
+        if (hd) { var c = hd.cloneNode(true); Array.prototype.forEach.call(c.querySelectorAll('.widget__try, button'), function (x) { x.remove(); }); title = c.textContent.trim(); }
+        n = steps.children.length;
+      }
+    });
+    makeCard(li, title || 'Animation');
+    li.classList.add('xcard--film');
+    var t = li.querySelector('.xcard__t');
+    t.insertAdjacentHTML('beforebegin', '<span class="xcard__play" aria-hidden="true">\u25B6</span>');
+    t.insertAdjacentHTML('beforeend', '<span class="xcard__kind">Animation' + (n ? ' \u00b7 ' + n + ' steps' : '') + (twins ? ' \u00b7 IGCSE or IB version' : '') + '</span>');
+    return li;
   }
 
   /* ---------- a sentence as a card ----------
