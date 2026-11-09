@@ -34,7 +34,7 @@ the answer.
 | 📏 **Sizes you can see** | a cell that grows on a slider while its actual size never changes; a micrograph printed as on an exam page, with a scale bar, a Paramecium and its nucleus each at an angle, and a clear ruler to drag and turn; a ruler that zooms from 1 mm to 5 µm, with real tissue, a mitochondrion and bacteria on it at their true scale |
 | 🧫 **Each cell seen three ways** | the drawing, the light microscope and the electron microscope: a part you cannot see with one opens the one that shows it, and says why |
 | ✏️ **Drawing and measuring, never the report** | the rules of a biological drawing: one drawing that follows them all and three that each break three; a clear ruler on the slide at ×100 and the cells counted across 1 mm, on a pondweed leaf: the lab never shows the specimen of the assessed practical |
-| 📖 **A shared glossary** | one wording per term, the same in every lab |
+| 📖 **A shared glossary** | one wording per term, the same in every lab; press 한국어, 中文 or 日本語 to see each word's name in Korean, Chinese or Japanese (the definitions stay in English) |
 
 > [!NOTE]
 > **The right answers are stored only as scrambled fingerprints.** The lab can tell a student they
