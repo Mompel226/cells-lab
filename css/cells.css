@@ -715,15 +715,15 @@ html[data-lab-tab="do"] .meas2__eq{display:none}
 .sp__lv{display:block;margin-top:5px;padding:4px 9px 5px;border-radius:7px;border-left:3px solid var(--accent);background:var(--accent-tint)}
 .sp__lv:first-child{margin-top:0}
 .sp__lvt{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:var(--r-pill);margin-right:3px;vertical-align:1px;background:var(--accent);color:var(--card)}
-.sp__lv--ib,.sp__lv--ibhl{background:var(--c103);border-left-color:var(--c104)}
-.sp__lv--ib .sp__lvt,.sp__lv--ibhl .sp__lvt{background:var(--c104);color:var(--c103)}
-.sp__lv--bey{background:var(--c106);border-left-color:var(--c107)}
-.sp__lv--bey .sp__lvt{background:var(--c24);color:var(--card);font-style:italic}
+.sp__lv--ib,.sp__lv--ibhl{background:var(--ext-tint);border-left-color:var(--ext)}
+.sp__lv--ib .sp__lvt,.sp__lv--ibhl .sp__lvt{background:var(--ext);color:var(--ext-on)}
+.sp__lv--bey{background:var(--ext-tint);border-left-color:var(--ext)}
+.sp__lv--bey .sp__lvt{background:var(--ext);color:var(--ext-on);font-style:italic}
 .sp__legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;font-size:12.5px;line-height:1.35}
 .sp__legend .sp__lv{display:inline-block;margin:0;padding:3px 8px}
 /* a step with no IGCSE line: its level on its button (w-common.js onlyLv) */
 .sp__only{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:0 6px;border-radius:var(--r-pill);vertical-align:1px;border:0;margin-left:2px}
-.sp__only.sp__lv--ib,.sp__only.sp__lv--ibhl{background:var(--c104);color:var(--c103)}
-.sp__only.sp__lv--bey{background:var(--c24);color:var(--card);font-style:italic}
-.sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--c103)}
-.sp__step--bey .sp__stepb{background:var(--c106)}
+.sp__only.sp__lv--ib,.sp__only.sp__lv--ibhl{background:var(--ext);color:var(--ext-on)}
+.sp__only.sp__lv--bey{background:var(--ext);color:var(--ext-on);font-style:italic}
+.sp__step--ib .sp__stepb,.sp__step--ibhl .sp__stepb{background:var(--ext-tint)}
+.sp__step--bey .sp__stepb{background:var(--ext-tint)}
