@@ -1,8 +1,8 @@
 /* ============================================================
    terms.js — the colour language of the Learn tab, for Topic 2, Organisation of the organism.
 
-   · Three inks, one per strand of the topic: CELL (violet, the nucleus's colour on the Foundations
-     shelf) for the parts of a cell and what they do; SIZE (blue) for the microscope, magnification
+   · Three inks, one per strand of the topic: CELL (rose; violet, the nucleus's colour on the Foundations
+     shelf, until 11 Nov 2026, when violet came to mean extension) for the parts of a cell and what they do; SIZE (blue) for the microscope, magnification
      and the units; ORG (amber) for how cells are organised: tissues, organs, specialised cells.
    · A word with a definition but no colour of its own carries the quiet dotted rule.
    Same API as the other labs' terms.js, so app.js is the same code (the Circulation Lab's, 7 Oct 2026).
