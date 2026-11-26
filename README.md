@@ -15,7 +15,7 @@ by **Dr Daniel Mompel Riera**
 
 </div>
 
-![The Cells Lab: a plant cell on the left with its parts labelled, the cell wall lit, and its card open on the right](docs/img/screen.jpg)
+![The Cells Lab: a real woman's body on the left, the first step from organism to cell, and the station From body to cell open on the right](docs/img/screen.jpg)
 
 ---
 
