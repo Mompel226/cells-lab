@@ -178,6 +178,7 @@
       say.innerHTML = cur === 'D' ? '<b>Drawing D follows every rule.</b> Several cells, each touching the next; one clear line for each edge; each wall a band of two lines; ruled labels; the magnification used, the actual length of one cell and a scale bar.'
         : '<b>Drawing ' + cur + ' breaks three rules.</b> Compare it with drawing D. Which three? The Practise tab asks.';
       api.say = cur === 'D' ? 'Drawing D: pondweed leaf cells drawn by every rule' : 'Drawing ' + cur + ': pondweed leaf cells, with three mistakes';
+      api.note = say.innerHTML;   /* on a laptop the sentence under the drawing waits under the caption's i (css/cells.css) */
       ctx.caption();
     }
     var api = {
