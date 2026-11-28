@@ -402,6 +402,7 @@ svg .lb__lead,svg .lb__halo{vector-effect:non-scaling-stroke}
   .lev__ladder{display:none}
   .lev__main{grid-template-columns:minmax(0,1fr)}
   .spc__tn{display:none}
+  .spc__strip{width:100%;max-width:460px;margin:0 auto}   /* on a tablet seven tiles a seventh of the width each were taller than the photo they choose */
   
   
   .cmp__chips{gap:4px} .cmp__chip{padding:3px 8px;font-size:12px}
@@ -781,3 +782,31 @@ html[data-lab-tab="do"] .meas2__eq{display:none}
 .said__more .said__credit{display:block;font-size:12.5px;color:var(--col-ink);margin:0}
 .said__more .said__note{display:block;margin:0 0 6px;font-size:13px;line-height:1.45;color:var(--col-ink)}
 @media (max-width:1000px){ .said__more .said__note{display:none} }   /* there the view shows it under its picture */
+
+/* ---------- station 1: the choice of organism and the five levels, plain to see (Daniel, 28 Nov 2026) ----------
+   "at the top you can select between a woman and a plant. Can you make that much more obvious ... big buttons, very obvious that
+   one thing is related to humans, the other to plant ... Same maybe for the row below, organism, organ system, organ, tissue,
+   cell ... make it very obvious for the students that they can click that." One joined switch whose chosen half is filled (the
+   picture-switch look Daniel asked for in every lab, 28 Nov 2026), then one joined row of steps, the one in view filled (its size stands in the row under the picture). */
+.vbar.lev__who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:0;border:1.5px solid var(--accent);border-radius:12px;overflow:hidden;background:var(--col-card)}
+.lev__who .cellv__mode{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:6px 12px;border:0;border-radius:0;
+  font-size:15px;font-weight:700;background:var(--col-card);color:var(--col-ink);text-align:left}
+.lev__who .cellv__mode + .cellv__mode{border-left:1.5px solid var(--accent)}
+.lev__who .cellv__mode:hover{background:var(--accent-tint)}
+.lev__who .cellv__mode[aria-pressed="true"]{background:var(--accent);color:var(--on-ink)}
+.lev__who .cellv__mode:focus-visible{outline:3px solid var(--accent);outline-offset:-5px;box-shadow:inset 0 0 0 5px var(--col-card)}
+.lev__ico{width:26px;height:26px;flex:none}
+.lev__wt{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.lev__ws{font-size:12px;font-weight:500;opacity:.85}
+.lev__lrow{display:flex;align-items:center;gap:8px}
+.lev__hint{flex:none;font-size:12.5px;font-weight:600;color:var(--col-soft)}
+.lev__lrow .lev__ladder{flex:1;display:flex;flex-wrap:nowrap;gap:0;border:1.5px solid var(--col-line);border-radius:12px;overflow:hidden;background:var(--col-card)}
+.lev__lrow .lev__rung + .lev__rung::before{content:none}
+.lev__lrow .lev__rung{flex:1 1 auto;min-width:0}
+.lev__lrow .lev__rung + .lev__rung{border-left:1.5px solid var(--col-line)}
+.lev__lrow .lev__rb{width:100%;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;padding:7px 6px;font-size:13.5px;text-align:center;background:transparent;white-space:nowrap}
+.lev__lrow .lev__rb:hover{background:var(--accent-tint)}
+.lev__lrow .lev__rw{display:none}   /* the size of the level in view stands in the row under the picture */
+.lev__lrow .lev__rung.is-on .lev__rb{background:var(--accent);color:var(--on-ink)}
+.lev__lrow .lev__rb:focus-visible{outline:3px solid var(--accent);outline-offset:-4px}
+@media (max-width:1000px) and (min-height:561px){ .lev__lrow{display:none} }   /* the levels stay as they were on a phone: Zoom in and Zoom out */

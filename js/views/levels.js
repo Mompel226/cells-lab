@@ -31,7 +31,7 @@
 
   function make(spec, ctx) {
     var root = h('div', 'lev');
-    var bar = h('div', 'vbar');
+    var bar = h('div', 'vbar lev__who');
     bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'Which organism');
     var main = h('div', 'lev__main');
     var ladder = h('ol', 'lev__ladder');
@@ -45,7 +45,10 @@
     var box = el('rect', { class: 'lev__boxr', rx: 6, ry: 6 }, svg);
     var labG = el('g', { class: 'lev__labs', 'aria-hidden': 'true' }, svg);
     frame.appendChild(svg);
-    main.appendChild(ladder); main.appendChild(frame);
+    /* the levels, one joined row of steps after a short instruction, so it is plain that each one can be pressed (Daniel,
+       28 Nov 2026: "make it very obvious for the students that they can click that") */
+    var lrow = h('div', 'lev__lrow'); lrow.appendChild(h('span', 'lev__hint', 'Press a level:')); lrow.appendChild(ladder);
+    main.appendChild(lrow); main.appendChild(frame);
     var nav = h('div', 'lev__nav');
     var outB = h('button', 'vbtn lev__out', '◂ Zoom out'); outB.type = 'button';
     var inB = h('button', 'vbtn lev__in', ''); inB.type = 'button';
@@ -54,8 +57,16 @@
     root.appendChild(bar); root.appendChild(main); root.appendChild(nav);
 
     var L = 0, k = 0;
+    /* each choice says what it is about with a small drawn sign and a second line: a person and the human body, a plant and the
+       plant (Daniel, 28 Nov 2026: "big buttons, very obvious that one thing is related to humans, the other to plant") */
+    var SIGN = {
+      woman: '<svg class="lev__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3.2" fill="currentColor"/><path d="M12 9.4c-3.2 0-5 2.2-5 5.2V17h2.4v5.6h5.2V17H17v-2.4c0-3-1.8-5.2-5-5.2z" fill="currentColor"/></svg>',
+      plant: '<svg class="lev__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M12 13c-5 0-7.5-3-7.5-7 4.6 0 7.5 2.6 7.5 7zM12 10c0-4.2 2.6-7 7.5-7 0 4.4-2.6 7-7.5 7z" fill="currentColor"/></svg>'
+    };
+    var SUB = { woman: 'the human body', plant: 'a cucumber plant' };
     var ladBtns = spec.ladders.map(function (lad, j) {
-      var b = h('button', 'cellv__mode', lad.name); b.type = 'button';
+      var b = h('button', 'cellv__mode', (SIGN[lad.id] || '') + '<span class="lev__wt"><span>' + lad.name + '</span>' +
+        (SUB[lad.id] ? '<span class="lev__ws">' + SUB[lad.id] + '</span>' : '') + '</span>'); b.type = 'button';
       b.addEventListener('click', function () { L = j; k = 0; paint(); });
       bar.appendChild(b);
       return b;

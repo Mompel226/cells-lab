@@ -22,12 +22,6 @@
   function make(spec, ctx) {
     var root = h('div', 'spc');
     var svg = el('svg', { class: 'spc__svg', role: 'img' });
-    /* a drawing that is cut off at its end (the sperm cell's tail) fades out there instead of stopping at a hard edge */
-    var fid = 'sf' + Math.random().toString(36).slice(2, 7);
-    var defs = el('defs', {}, svg), grad = el('linearGradient', { id: fid + 'g', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
-    el('stop', { offset: '0.86', 'stop-color': '#fff' }, grad); el('stop', { offset: '1', 'stop-color': '#000' }, grad);
-    var fade = el('mask', { id: fid, maskContentUnits: 'objectBoundingBox' }, defs);
-    el('rect', { x: 0, y: 0, width: 1, height: 1, fill: 'url(#' + fid + 'g)' }, fade);
     var img = el('image', { preserveAspectRatio: 'none' }, svg);
     var labG = el('g', {}, svg);
     var job = h('p', 'spc__job'); job.setAttribute('aria-live', 'polite');
@@ -38,6 +32,7 @@
     var thumbs = spec.cells.map(function (c, j) {
       var b = h('button', 'spc__t'); b.type = 'button';
       var im = new Image(); im.src = 'assets/photos/' + c.img; im.alt = ''; im.loading = 'lazy'; im.decoding = 'async';
+      if (c.thumbAt) im.style.objectPosition = c.thumbAt;   /* a tall photo shows its telling end in the square tile: the sperm cell's head, not a stretch of tail */
       b.appendChild(im); b.appendChild(h('span', 'spc__tn', c.short || c.name));   /* a short name fits the tile in two lines */
       b.addEventListener('click', function () { k = j; paint(); ctx.pick(c.id, { stay: true }); });
       strip.appendChild(b); return b;
@@ -56,12 +51,11 @@
       for (var n = 0; n < 4; n++) {
         margin = f * 0.56 * longest + 30;
         ppu = r.width ? Math.min(r.width / (c.w + margin), r.height / c.h) : 0.6;
-        f = Math.max(14, Math.min(c.w / 8, 14 / (ppu || 0.6)));
+        f = Math.max(14, Math.min(Math.max(c.w, c.h) / 8, 14 / (ppu || 0.6)));   /* the longer side: a tall, narrow photo (the sperm cell) keeps its name at 14 px on a phone */
       }
       margin = f * 0.56 * longest + 30;
       var pad = c.h * 0.02;   /* a little air above and below the picture */
       svg.setAttribute('viewBox', (right ? 0 : -margin).toFixed(1) + ' ' + (-pad).toFixed(1) + ' ' + (c.w + margin).toFixed(1) + ' ' + (c.h + 2 * pad).toFixed(1));
-      if (c.fade) img.setAttribute('mask', 'url(#' + fid + ')'); else img.removeAttribute('mask');
       svg.setAttribute('aria-label', c.alt || c.name);
       img.setAttribute('href', 'assets/photos/' + c.img); img.setAttribute('width', c.w); img.setAttribute('height', c.h);
       labG.innerHTML = global.CircLearn.labels({ items: [{ id: c.id, text: c.pinText, x: c.pin[0], y: c.pin[1], side: right ? 'R' : 'L', cls: 'is-lit' }],
